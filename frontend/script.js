@@ -1,4 +1,5 @@
-function analyzeFile() {
+async function analyzeFile() {
+    alert("New script is running");
     const fileInput = document.getElementById("fileInput");
 
     if (!fileInput.files.length) {
@@ -6,48 +7,30 @@ function analyzeFile() {
         return;
     }
 
-    // Demo Result
-    document.getElementById("status").innerText = "Malicious";
-    document.getElementById("attackType").innerText = "DoS Attack";
-    document.getElementById("severity").innerText = "High";
-    document.getElementById("confidence").innerText = "94%";
-    document.getElementById("recommendation").innerText =
-        "Block suspicious IP immediately";
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
 
-    document.getElementById("alertMessage").innerText =
-        "⚠ High Severity Threat Detected: DoS Attack from suspicious traffic!";
-}
+    try {
+        const response = await fetch("http://127.0.0.1:5000/predict_csv", {
+            method: "POST",
+            body: formData
+        });
 
-// Pie Chart for Attack Types
-const ctx = document.getElementById("attackChart").getContext("2d");
+        const result = await response.json();
 
-new Chart(ctx, {
-    type: "pie",
-    data: {
-        labels: [
-            "DoS Attack",
-            "Phishing",
-            "Malware",
-            "Brute Force"
-        ],
-        datasets: [{
-            label: "Detected Threats",
-            data: [40, 25, 20, 15],
-            backgroundColor: [
-                "red",      // High severity
-                "yellow",   // Medium severity
-                "green",    // Low severity
-                "orange"    // Additional threat
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: "top"
-            }
+        if (result.error) {
+            alert(result.error);
+            return;
         }
+
+        document.getElementById("status").innerText = result.status;
+        document.getElementById("attackType").innerText = result.attack_type;
+        document.getElementById("severity").innerText = result.severity;
+        document.getElementById("confidence").innerText = result.confidence;
+        document.getElementById("recommendation").innerText = result.recommendation;
+        document.getElementById("alertMessage").innerText = result.alert;
+
+    } catch (error) {
+        alert("Error connecting to backend.");
     }
-});
+}
