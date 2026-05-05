@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cybersecurity Threat Detection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>AI-Driven Cybersecurity Threat Detection</h1>
+
+    <div class="box">
+        <h2>Enter Network Traffic Details</h2>
+
+        <input id="duration" placeholder="Duration" value="0">
+        <input id="protocol_type" placeholder="Protocol Type" value="tcp">
+        <input id="service" placeholder="Service" value="http">
+        <input id="flag" placeholder="Flag" value="SF">
+        <input id="src_bytes" placeholder="Source Bytes" value="181">
+        <input id="dst_bytes" placeholder="Destination Bytes" value="5450">
+
+        <button onclick="predict()">Analyze</button>
+
+        <h2 id="result"></h2>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
