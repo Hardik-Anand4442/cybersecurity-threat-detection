@@ -1,27 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cybersecurity Threat Detection</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Threat Detection System</title>
+
+    <!-- CSS File -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>AI-Driven Cybersecurity Threat Detection</h1>
 
-    <div class="box">
-        <h2>Enter Network Traffic Details</h2>
+    <div class="container">
 
-        <input id="duration" placeholder="Duration" value="0">
-        <input id="protocol_type" placeholder="Protocol Type" value="tcp">
-        <input id="service" placeholder="Service" value="http">
-        <input id="flag" placeholder="Flag" value="SF">
-        <input id="src_bytes" placeholder="Source Bytes" value="181">
-        <input id="dst_bytes" placeholder="Destination Bytes" value="5450">
+        <!-- Title -->
+        <h1>🛡 Cybersecurity Threat Detection System</h1>
+        <p>Upload your network traffic CSV file and analyze suspicious activity</p>
 
-        <button onclick="predict()">Analyze</button>
+        <!-- Upload Section -->
+        <div class="card">
+            <h2>Upload Traffic File</h2>
+            <input type="file" id="fileInput" accept=".csv">
+            <button onclick="analyzeFile()">Analyze</button>
+        </div>
 
-        <h2 id="result"></h2>
+        <!-- Result Section -->
+        <div class="card" id="resultCard">
+            <h2>Analysis Result</h2>
+
+            <p><strong>Status:</strong>
+                <span id="status">Waiting...</span>
+            </p>
+
+            <p><strong>Attack Type:</strong>
+                <span id="attackType">--</span>
+            </p>
+
+            <p><strong>Severity:</strong>
+                <span id="severity">--</span>
+            </p>
+
+            <p><strong>Confidence:</strong>
+                <span id="confidence">--</span>
+            </p>
+
+            <p><strong>Recommendation:</strong>
+                <span id="recommendation">--</span>
+            </p>
+        </div>
+
+        <!-- Alert Section -->
+        <div class="card alert-box">
+            <h2>⚠ Recent Alert</h2>
+            <p id="alertMessage">
+                No threats detected yet.
+            </p>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="card">
+            <h2>📊 Threat Type Distribution</h2>
+            <canvas id="attackChart"></canvas>
+        </div>
+
     </div>
 
+    <!-- JavaScript File -->
     <script src="script.js"></script>
+
 </body>
 </html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Cybersecurity Threat Detection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="card" style="max-width: 500px; margin: 80px auto;">
+
+            <h1>🔐 Login</h1>
+            <p>Cybersecurity Threat Detection System</p>
+
+            <form onsubmit="return loginUser()">
+
+                <div style="margin: 20px 0;">
+                    <input 
+                        type="text" 
+                        id="username"
+                        placeholder="Enter Username"
+                        required
+                        style="width: 80%; padding: 12px;"
+                    >
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <input 
+                        type="password" 
+                        id="password"
+                        placeholder="Enter Password"
+                        required
+                        style="width: 80%; padding: 12px;"
+                    >
+                </div>
+
+                <button type="submit">
+                    Login
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+        function loginUser() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Demo Login Credentials
+            if (username === "admin" && password === "admin123") {
+                alert("Login Successful!");
+
+                // Redirect to dashboard
+                window.location.href = "index.html";
+            } else {
+                alert("Invalid Username or Password");
+            }
+
+            return false;
+        }
+    </script>
+
+</body>
+</html>
