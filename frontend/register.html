@@ -3,26 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Register | Cybersecurity System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
     <div class="card" style="max-width:500px; margin:80px auto;">
-
         <h1>👤 Register</h1>
+        <p>Create your account for Cybersecurity Threat Detection System</p>
 
-        <input type="text" placeholder="Full Name" required><br><br>
-        <input type="email" placeholder="Email" required><br><br>
-        <input type="password" placeholder="Password" required><br><br>
+        <!-- Use specific IDs for the script to find -->
+        <input type="text" placeholder="Full Name" required>
+        <br><br>
 
-        <button onclick="alert('Registration Successful!')">
-            Register
-        </button>
+        <input type="email" id="regEmail" placeholder="Email" required>
+        <br><br>
 
+        <input type="password" id="regPass" placeholder="Password" required>
+        <br><br>
+
+        <!-- Call the JavaScript function -->
+        <button onclick="registerUser()">Register</button>
+
+        <br><br>
+        <a href="login.html">Already have an account? Login</a>
     </div>
 </div>
+
+<script>
+    function registerUser() {
+        const email = document.getElementById("regEmail").value;
+        const pass = document.getElementById("regPass").value;
+
+        if (email && pass) {
+            // This acts as your temporary database
+            localStorage.setItem("userEmail", email);
+            localStorage.setItem("userPassword", pass);
+
+            alert("Registration Successful! Now try logging in.");
+            window.location.href = "login.html";
+        } else {
+            alert("Please enter both email and password.");
+        }
+    }
+</script>
 
 </body>
 </html>

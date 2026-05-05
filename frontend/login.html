@@ -41,6 +41,14 @@
                     Login
                 </button>
 
+                <br><br>
+
+                <a href="register.html">Create New Account</a>
+
+                <br><br>
+
+                <a href="forgetPass.html">Forgot Password?</a>
+
             </form>
 
         </div>
@@ -48,23 +56,25 @@
     </div>
 
     <script>
-        function loginUser() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
+    function loginUser() {
+        const emailInput = document.getElementById("username").value;
+        const passInput = document.getElementById("password").value;
 
-            // Demo Login Credentials
-            if (username === "admin" && password === "admin123") {
-                alert("Login Successful!");
+        const savedEmail = localStorage.getItem("userEmail");
+        const savedPass = localStorage.getItem("userPassword");
 
-                // Redirect to dashboard
-                window.location.href = "index.html";
-            } else {
-                alert("Invalid Username or Password");
-            }
-
-            return false;
+        if (emailInput === savedEmail && passInput === savedPass) {
+            alert("Login Successful!");
+            window.location.href = "index.html";
+        } else if (emailInput === "admin" && passInput === "admin123") {
+            alert("Admin Login Successful!");
+            window.location.href = "index.html";
+        } else {
+            alert("Invalid credentials. Please try again.");
         }
-    </script>
+        return false; 
+    }
+</script>
 
 </body>
 </html>
