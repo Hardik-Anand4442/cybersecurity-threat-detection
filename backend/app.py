@@ -1,114 +1,110 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import joblib
+
 import pandas as pd
+import joblib
+import numpy as np
 
 app = Flask(__name__)
 CORS(app)
 
-model = joblib.load("model.pkl")
-protocol_encoder = joblib.load("protocol_encoder.pkl")
-service_encoder = joblib.load("service_encoder.pkl")
-flag_encoder = joblib.load("flag_encoder.pkl")
+# Load model files
+model = joblib.load("final_rf_model.pkl")
+
+encoders = joblib.load("final_feature_encoders.pkl")
+
+target_encoder = joblib.load("final_target_encoder.pkl")
+
+feature_columns = joblib.load("final_feature_columns.pkl")
+
 
 @app.route("/")
 def home():
-    return "Cybersecurity Threat Detection Backend is running"
+    return "AI Cybersecurity Backend Running"
 
-def format_result(prediction, confidence):
-    if prediction == "normal":
-        return {
-            "status": "Normal",
-            "attack_type": "No Attack",
-            "severity": "Low",
-            "confidence": confidence,
-            "recommendation": "No immediate action required.",
-            "alert": "✅ Normal traffic detected. No threat found."
-        }
-
-    if prediction == "dos":
-        return {
-            "status": "Malicious",
-            "attack_type": "DoS Attack",
-            "severity": "High",
-            "confidence": confidence,
-            "recommendation": "Monitor traffic and block suspicious IP addresses.",
-            "alert": "⚠ High Severity Threat Detected: DoS Attack."
-        }
-
-    if prediction == "probe":
-        return {
-            "status": "Malicious",
-            "attack_type": "Reconnaissance / Probe Attack",
-            "severity": "Medium",
-            "confidence": confidence,
-            "recommendation": "Monitor scanning activity and restrict suspicious hosts.",
-            "alert": "⚠ Reconnaissance activity detected."
-        }
-
-    if prediction == "r2l":
-        return {
-            "status": "Malicious",
-            "attack_type": "Brute Force / Remote-to-Local Attack",
-            "severity": "High",
-            "confidence": confidence,
-            "recommendation": "Review login attempts and strengthen authentication.",
-            "alert": "⚠ Possible brute force or unauthorized access attempt."
-        }
-
-    if prediction == "u2r":
-        return {
-            "status": "Malicious",
-            "attack_type": "Privilege Escalation Attack",
-            "severity": "Critical",
-            "confidence": confidence,
-            "recommendation": "Investigate affected system immediately.",
-            "alert": "🚨 Critical Threat: Privilege escalation detected."
-        }
-
-    return {
-        "status": "Unknown",
-        "attack_type": str(prediction),
-        "severity": "Unknown",
-        "confidence": confidence,
-        "recommendation": "Further analysis required.",
-        "alert": "Unknown traffic pattern detected."
-    }
-
-def predict_dataframe(df):
-    df["protocol_type"] = protocol_encoder.transform(df["protocol_type"])
-    df["service"] = service_encoder.transform(df["service"])
-    df["flag"] = flag_encoder.transform(df["flag"])
-
-    prediction = model.predict(df)[0]
-
-    confidence = "N/A"
-    if hasattr(model, "predict_proba"):
-        prob = model.predict_proba(df)[0]
-        confidence = str(round(max(prob) * 100, 2)) + "%"
-
-    return format_result(prediction, confidence)
-
-@app.route("/predict", methods=["POST"])
-def predict():
-    try:
-        data = request.json
-        df = pd.DataFrame([data])
-        return jsonify(predict_dataframe(df))
-    except Exception as e:
-        return jsonify({"error": str(e)})
 
 @app.route("/predict_csv", methods=["POST"])
 def predict_csv():
+
     try:
         file = request.files["file"]
+
         df = pd.read_csv(file)
 
-        result = predict_dataframe(df)
-        return jsonify(result)
+        # Encode categorical columns
+        categorical_cols = ['proto', 'service', 'state']
+
+        for col in categorical_cols:
+            if col in df.columns:
+                df[col] = encoders[col].transform(df[col].astype(str))
+
+        # Keep required columns only
+        df = df[feature_columns]
+
+        # Prediction
+        prediction = model.predict(df)[0]
+
+        # Confidence
+        probabilities = model.predict_proba(df)[0]
+
+        confidence = round(np.max(probabilities) * 100, 2)
+
+        attack_name = target_encoder.inverse_transform([prediction])[0]
+
+        # Status
+        if attack_name.lower() == "normal":
+            status = "Normal"
+            severity = "Low"
+            recommendation = "No immediate action required."
+
+        else:
+            status = "Malicious"
+
+            if confidence > 90:
+                severity = "High"
+            elif confidence > 70:
+                severity = "Medium"
+            else:
+                severity = "Low"
+
+            recommendation = (
+                "Investigate suspicious traffic and block malicious source."
+            )
+
+        # Top important features
+        top_features = [
+            "sbytes",
+            "smean",
+            "sload"
+        ]
+
+        return jsonify({
+
+            "status": status,
+
+            "attack_type": attack_name,
+
+            "confidence": f"{confidence}%",
+
+            "severity": severity,
+
+            "recommendation": recommendation,
+
+            "top_features": top_features,
+
+            "alert": (
+                f"⚠ Threat Detected: {attack_name}"
+                if status == "Malicious"
+                else "✅ Network traffic appears safe."
+            )
+        })
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+
+        return jsonify({
+            "error": str(e)
+        })
+
 
 if __name__ == "__main__":
     app.run(debug=True)
