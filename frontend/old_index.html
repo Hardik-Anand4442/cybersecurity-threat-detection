@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Threat Detection System</title>
+
+    <!-- CSS File -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Navigation -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <a href="admin.html" style="text-decoration: none; font-weight: bold; color: #1565c0;">👨‍💼 Admin Panel</a>
+    <a href="login.html" onclick="return confirm('Are you sure you want to logout?')" style="text-decoration: none; font-weight: bold; color: #d32f2f;">Logout</a>
+</div>
+
+        <!-- Title -->
+        <h1>🛡 Cybersecurity Threat Detection System</h1>
+        <p>Upload your network traffic CSV file and analyze suspicious activity</p>
+
+        <!-- Upload Section -->
+        <div class="card">
+            <h2>Upload Traffic File</h2>
+            <input type="file" id="fileInput" accept=".csv">
+            <button onclick="analyzeFile()">Analyze</button>
+        </div>
+
+        <!-- Result Section -->
+        <div class="card" id="resultCard">
+            <h2>Analysis Result</h2>
+
+            <p><strong>Status:</strong>
+                <span id="status">Waiting...</span>
+            </p>
+
+            <p><strong>Attack Type:</strong>
+                <span id="attackType">--</span>
+            </p>
+
+            <p><strong>Severity:</strong>
+                <span id="severity">--</span>
+            </p>
+
+            <p><strong>Confidence:</strong>
+                <span id="confidence">--</span>
+            </p>
+
+            <p><strong>Recommendation:</strong>
+                <span id="recommendation">--</span>
+            </p>
+        </div>
+
+        <!-- Alert Section -->
+        <div class="card alert-box">
+            <h2>⚠ Recent Alert</h2>
+            <p id="alertMessage">
+                No threats detected yet.
+            </p>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="card">
+            <h2>📊 Threat Type Distribution</h2>
+            <canvas id="attackChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- JavaScript File -->
+    <script src="script.js"></script>
+
+</body>
+</html>

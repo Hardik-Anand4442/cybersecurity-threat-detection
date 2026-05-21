@@ -4,77 +4,265 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cybersecurity Threat Detection System</title>
-
-    <!-- CSS File -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-    <div class="container">
-
-        <!-- Navigation -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <a href="admin.html" style="text-decoration: none; font-weight: bold; color: #1565c0;">👨‍💼 Admin Panel</a>
-    <a href="login.html" onclick="return confirm('Are you sure you want to logout?')" style="text-decoration: none; font-weight: bold; color: #d32f2f;">Logout</a>
-</div>
-
-        <!-- Title -->
-        <h1>🛡 Cybersecurity Threat Detection System</h1>
-        <p>Upload your network traffic CSV file and analyze suspicious activity</p>
-
-        <!-- Upload Section -->
-        <div class="card">
-            <h2>Upload Traffic File</h2>
-            <input type="file" id="fileInput" accept=".csv">
-            <button onclick="analyzeFile()">Analyze</button>
-        </div>
-
-        <!-- Result Section -->
-        <div class="card" id="resultCard">
-            <h2>Analysis Result</h2>
-
-            <p><strong>Status:</strong>
-                <span id="status">Waiting...</span>
-            </p>
-
-            <p><strong>Attack Type:</strong>
-                <span id="attackType">--</span>
-            </p>
-
-            <p><strong>Severity:</strong>
-                <span id="severity">--</span>
-            </p>
-
-            <p><strong>Confidence:</strong>
-                <span id="confidence">--</span>
-            </p>
-
-            <p><strong>Recommendation:</strong>
-                <span id="recommendation">--</span>
-            </p>
-        </div>
-
-        <!-- Alert Section -->
-        <div class="card alert-box">
-            <h2>⚠ Recent Alert</h2>
-            <p id="alertMessage">
-                No threats detected yet.
-            </p>
-        </div>
-
-        <!-- Statistics Section -->
-        <div class="card">
-            <h2>📊 Threat Type Distribution</h2>
-            <canvas id="attackChart"></canvas>
-        </div>
-
+    <!-- Top Utility Navigation -->
+    <div class="top-utility-bar">
+        <a href="#" id="adminPanelBtn" class="utility-link">⚙ Admin Panel</a>
+        <a href="#" id="logoutBtn" class="utility-link">Logout</a>
     </div>
 
-    <!-- JavaScript File -->
-    <script src="script.js"></script>
+    <div class="cyber-grid-background"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
 
+    <div class="dashboard-container">
+        <!-- SYSTEM TITLE SECTION -->
+        <header class="dashboard-centered-header">
+            <div class="logo-shield-container">
+                <svg class="shield-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <h1 class="dashboard-main-title">Cybersecurity Threat Detection System</h1>
+            <p class="dashboard-subtitle">Upload your network traffic CSV file and analyze suspicious activity</p>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="dashboard-vertical-layout">
+            
+            <!-- SECTION 1: INGESTION CARD -->
+            <section class="glass-card upload-section">
+                <div class="panel-header">
+                    <span class="panel-number">01</span>
+                    <h2>Upload Traffic File</h2>
+                </div>
+                
+                <div class="upload-area-wrapper" id="dropZone">
+                    <div class="upload-scanline"></div>
+                    <div class="upload-prompt-text">
+                        <svg class="upload-mini-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        <span>Drag & Drop your traffic CSV here, or use the selector below</span>
+                    </div>
+
+                    <div class="file-select-row">
+                        <!-- Standard styled input button file upload -->
+                        <label class="custom-file-upload">
+                            <input type="file" id="fileInput" accept=".csv">
+                            Choose File
+                        </label>
+                        <span id="fileNameText" class="file-status-label">No file chosen</span>
+                        <button class="cyber-btn" id="analyzeBtn" disabled>Analyze</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: VIEWPORT GATEWAY (EMPTY, SCANNING, OR RESULTS) -->
+            <section class="viewport-gateway">
+                
+                <!-- STATE A: EMPTY STATE -->
+                <div class="panel-state-view active" id="stateEmpty">
+                    <div class="radar-container">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-circle circle-1"></div>
+                        <div class="radar-circle circle-2"></div>
+                        <div class="radar-circle circle-3"></div>
+                        <div class="radar-dot dot-1"></div>
+                        <div class="radar-dot dot-2"></div>
+                    </div>
+                    <div class="empty-state-text">
+                        <h3>SYSTEM READY FOR LOG INGESTION</h3>
+                        <p>Upload a security traffic CSV stream to run neural analytics, measure threat categories, and generate mitigation playbooks.</p>
+                        <div class="terminal-mock">
+                            <span class="term-prompt">&gt;</span> awaiting network csv stream...<br>
+                            <span class="term-prompt">&gt;</span> modules armed: CLASSIFIER_NODE, ANOMALY_DETECTOR, DYNAMIC_REMEDIATOR
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATE B: SCANNING STATE -->
+                <div class="panel-state-view" id="stateScanning" style="display: none;">
+                    <div class="scanning-loader">
+                        <div class="loader-ring"></div>
+                        <div class="loader-hex">⬡</div>
+                        <span class="scanning-percent" id="scanPercent">00%</span>
+                    </div>
+                    <div class="scanning-text">
+                        <h3 class="glitch-text" data-text="SCANNING LOG STREAM">SCANNING LOG STREAM</h3>
+                        <p id="scanStatusMsg">Decompressing and parsing data packets...</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="scanProgressBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATE C: RESULTS COMPLETED STATE -->
+                <div class="panel-state-view" id="stateResults" style="display: none;">
+                    
+                    <!-- DYNAMIC SUB-GRID: ANALYSIS & ALERTS -->
+                    <div class="results-layout-grid">
+                        
+                        <!-- COLUMN 1: ANALYSIS RESULT VALUES -->
+                        <div class="glass-card analysis-result-card">
+                            <div class="panel-header">
+                                <span class="panel-number">02</span>
+                                <h2>Analysis Result</h2>
+                            </div>
+                            <ul class="result-details-list">
+                                <li>
+                                    <span class="lbl">Status:</span> 
+                                    <span class="val status-val" id="threatStatus">Malicious</span>
+                                </li>
+                                <li>
+                                    <span class="lbl">Attack Type:</span> 
+                                    <span class="val" id="threatAttackType">Exploits</span>
+                                </li>
+                                <li>
+                                    <span class="lbl">Severity:</span> 
+                                    <span class="val" id="threatSeverity">Low</span>
+                                </li>
+                                <li>
+                                    <span class="lbl">Confidence:</span> 
+                                    <span class="val" id="threatConfidence">40.57%</span>
+                                </li>
+                                <li>
+                                    <span class="lbl">Recommendation:</span> 
+                                    <span class="val reco-val" id="threatRecommendation">Investigate suspicious traffic and block malicious source.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- COLUMN 2: RECENT ALERT CARD -->
+                        <div class="glass-card recent-alert-card">
+                            <div class="panel-header alert-card-header">
+                                <span class="alert-icon-warning">⚠️</span>
+                                <h2>Recent Alert</h2>
+                            </div>
+                            <div class="alert-content-body">
+                                <span class="alert-marker">⚠️</span>
+                                <span class="alert-text-message" id="recentAlertMsg">Threat Detected: Exploits</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MULTI-ROW DETECTION LOGS REGISTER -->
+                    <div class="glass-card register-logs-card">
+                        <div class="table-controls">
+                            <h3>Detection Log Register</h3>
+                            <div class="table-actions">
+                                <div class="search-input-wrapper">
+                                    <input type="text" id="tableSearch" placeholder="Filter vectors...">
+                                </div>
+                                <button class="secondary-btn" id="exportCsvBtn">Export Scans</button>
+                            </div>
+                        </div>
+                        <div class="table-scroll-container">
+                            <table class="cyber-table" id="threatTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>ATTACK TYPE</th>
+                                        <th>SEVERITY</th>
+                                        <th>CONFIDENCE</th>
+                                        <th>STATUS</th>
+                                        <th>RECOMMENDATION</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="threatTableBody">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- THREAT TYPE DISTRIBUTION (Pie Chart) -->
+                    <div class="glass-card distribution-card">
+                        <div class="panel-header">
+                            <span class="panel-number">03</span>
+                            <h2>Threat Type Distribution</h2>
+                        </div>
+                        <div class="chart-flex-container">
+                            <div class="canvas-wrapper">
+                                <canvas id="threatDistributionChart" width="220" height="220"></canvas>
+                            </div>
+                            <div class="chart-legend" id="chartLegend">
+                                <!-- Legend generated dynamically in app.js -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+            <span class="system-hash">SECURE GATEWAY // PORT 5000 // AES_256</span>
+            <span class="dashboard-version">v2.1.0-STABLE</span>
+        </footer>
+    </div>
+
+    <!-- LOCK SCREEN OVERLAY (Simulating Logout state) -->
+    <div class="lock-screen-overlay" id="lockScreen" style="display: none;">
+        <div class="lock-card">
+            <div class="lock-icon">🔒</div>
+            <h2>SYSTEM LOGGED OUT</h2>
+            <p>Enter passcode authorization to unlock threat core nodes</p>
+            <div class="lock-input-group">
+                <input type="password" id="passcodeInput" placeholder="Enter authorization key...">
+                <button id="unlockBtn">Authorize</button>
+            </div>
+            <p class="lock-hint">Hint: enter code <code>1337</code></p>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL SETTINGS MODAL -->
+    <div class="admin-modal-overlay" id="adminModal" style="display: none;">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <h2>ADMINISTRATOR SETTINGS</h2>
+                <button class="close-modal-btn" id="closeAdminBtn">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="form-group">
+                    <label for="apiUrlInput">API THREAT SERVICE PATHWAY</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="apiUrlInput" value="http://127.0.0.1:5000/predict_csv">
+                        <button class="icon-btn" id="resetUrlBtn" title="Reset to Default">⟲</button>
+                    </div>
+                </div>
+                <div class="form-group toggle-group">
+                    <div class="toggle-text">
+                        <span class="toggle-title">MOCK TELEMETRY SIMULATION</span>
+                        <span class="toggle-desc">Auto-generate predictions client-side without live Flask server</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="mockModeSwitch" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="sys-info-block">
+                    <h3>ENVIRONMENT TELEMETRY</h3>
+                    <p>Status: <span style="color:var(--sev-low)">ACTIVE</span></p>
+                    <p>Gateway Port: <code>5000</code></p>
+                    <p>Active Model: <code>Neural-Vector-Classifier v4.1</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Ingest -->
+    <script src="script.js"></script>
 </body>
 </html>
