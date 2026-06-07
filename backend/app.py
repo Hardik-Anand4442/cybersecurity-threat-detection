@@ -195,6 +195,152 @@ def predict_csv():
             "error": str(e)
         })
 
+@app.route("/ask_cybershield", methods=["POST"])
+def ask_cybershield():
+    try:
+        data = request.json
+        question = data.get("question", "").lower()
+        context = data.get("context", None)
 
+        aliases = {
+            "xxs": "xss",
+            "cross site": "xss",
+            "cross-site": "xss",
+            "bruteforce": "password",
+            "brute force": "password",
+            "login attack": "password",
+            "man in the middle": "mitm",
+            "middle attack": "mitm",
+            "scan": "scanning",
+            "port scan": "scanning",
+            "distributed denial": "ddos",
+            "denial of service": "dos"
+        }
+
+        for wrong, correct in aliases.items():
+            if wrong in question:
+                question = question.replace(wrong, correct)
+
+        attack_info = {
+            "xss": {
+                "name": "Cross-Site Scripting (XSS)",
+                "meaning": "XSS is a web attack where malicious scripts are injected into trusted websites.",
+                "danger": "It can steal cookies, session tokens, or redirect users to malicious pages.",
+                "prevention": "Use input validation, output encoding, Content Security Policy, and sanitize user input."
+            },
+            "ddos": {
+                "name": "Distributed Denial of Service",
+                "meaning": "DDoS attacks overload a target using traffic from multiple sources.",
+                "danger": "It can make websites, servers, or services unavailable.",
+                "prevention": "Use rate limiting, traffic filtering, CDN protection, and DDoS mitigation services."
+            },
+            "dos": {
+                "name": "Denial of Service",
+                "meaning": "DoS attacks overload a system from a single or limited source.",
+                "danger": "It can exhaust resources and stop legitimate users from accessing services.",
+                "prevention": "Use firewall rules, throttling, monitoring, and resource protection."
+            },
+            "backdoor": {
+                "name": "Backdoor Attack",
+                "meaning": "A backdoor creates hidden unauthorized access to a system.",
+                "danger": "Attackers can bypass normal authentication and control systems secretly.",
+                "prevention": "Use malware scanning, patching, access audits, and endpoint monitoring."
+            },
+            "password": {
+                "name": "Password Attack",
+                "meaning": "Password attacks try to guess or brute-force login credentials.",
+                "danger": "They can lead to account takeover and unauthorized access.",
+                "prevention": "Use strong passwords, MFA, account lockout, and login monitoring."
+            },
+            "injection": {
+                "name": "Injection Attack",
+                "meaning": "Injection attacks insert malicious commands or payloads into applications.",
+                "danger": "They can expose databases, execute commands, or bypass security.",
+                "prevention": "Use input validation, parameterized queries, and sanitization."
+            },
+            "mitm": {
+                "name": "Man-in-the-Middle Attack",
+                "meaning": "MITM attacks intercept communication between two parties.",
+                "danger": "Attackers can steal data or manipulate transmitted information.",
+                "prevention": "Use HTTPS, certificate validation, VPNs, and encrypted communication."
+            },
+            "ransomware": {
+                "name": "Ransomware",
+                "meaning": "Ransomware encrypts files and demands payment for recovery.",
+                "danger": "It can cause data loss, downtime, and financial damage.",
+                "prevention": "Use offline backups, endpoint protection, patching, and user awareness."
+            },
+            "scanning": {
+                "name": "Scanning / Reconnaissance",
+                "meaning": "Scanning identifies open ports, services, and vulnerabilities.",
+                "danger": "It is often the first step before exploitation.",
+                "prevention": "Restrict exposed ports, harden firewalls, and monitor repeated scans."
+            },
+            "normal": {
+                "name": "Normal Traffic",
+                "meaning": "Normal traffic means legitimate network activity.",
+                "danger": "No immediate threat detected.",
+                "prevention": "Continue monitoring and maintain security best practices."
+            }
+        }
+
+        current_attack = None
+
+        if context and "attack_type" in context:
+            current_attack = str(context["attack_type"]).lower()
+
+        for key in attack_info:
+            if key in question:
+                current_attack = key
+
+        if ("this" in question or "detected" in question or "current" in question) and current_attack:
+            info = attack_info.get(current_attack)
+
+            if not info:
+                return jsonify({
+                    "answer": "The current detected attack is not available in my knowledge base yet."
+                })
+
+            if "prevent" in question or "avoid" in question or "stop" in question:
+                return jsonify({
+                    "answer": f"For the current detected threat ({info['name']}), prevention includes: {info['prevention']}"
+                })
+
+            if "danger" in question or "risk" in question or "harm" in question:
+                return jsonify({
+                    "answer": f"The current detected threat ({info['name']}) is dangerous because: {info['danger']}"
+                })
+
+            return jsonify({
+                "answer": (
+                    f"The current detected threat is {info['name']}.\n\n"
+                    f"What it is: {info['meaning']}\n\n"
+                    f"Why it is dangerous: {info['danger']}\n\n"
+                    f"Prevention: {info['prevention']}"
+                )
+            })
+
+        for key, info in attack_info.items():
+            if key in question:
+                return jsonify({
+                    "answer": (
+                        f"{info['name']}\n\n"
+                        f"What it is: {info['meaning']}\n\n"
+                        f"Why it is dangerous: {info['danger']}\n\n"
+                        f"Prevention: {info['prevention']}"
+                    )
+                })
+
+        if "project" in question or "system" in question or "ids" in question or "use" in question:
+            return jsonify({
+                "answer": "AI-CYBER SHIELD is a deployable AI-driven intrusion detection prototype. It analyzes network traffic CSV files, detects 10 attack classes, explains threats, provides recommendations, supports adversarial awareness, and assists users through a cybersecurity assistant."
+            })
+
+        return jsonify({
+            "answer": "I can answer questions about the current detected threat, prevention methods, severity, recommendations, CSV quality, adversarial awareness, autonomous response, and IDS project functionality."
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
 if __name__ == "__main__":
     app.run(debug=True)

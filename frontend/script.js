@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let activeFile = null;
     let scanResults = [];
+    let latestThreatContext = null;
 
     // Drag-and-drop Events
     const preventDefaults = (e) => {
@@ -355,20 +356,25 @@ document.addEventListener('DOMContentLoaded', () => {
         scanResults = normalized;
         renderDashboardResults(scanResults);
         setDashboardState('results');
+        generateAutoCyberShieldSummary(scanResults[0]);
         showTerminalLog(`Ingested ${scanResults.length} live records.`, 'success');
     }
 
     function normalizeData(item) {
-        // Ensure values match requirement lowercase severity and exact field outputs
-        return {
-            status: item.status || item.Status || 'Malicious',
-            attack_type: item.attack_type || item.AttackType || 'Exploits',
-            severity: (item.severity || item.Severity || 'low').toLowerCase(),
-            confidence: parseFloat(item.confidence || item.Confidence || 50),
-            recommendation: item.recommendation || item.Recommendation || 'Investigate suspicious traffic and block source.',
-            alert: item.alert || item.Alert || `Threat Detected: ${item.attack_type || 'Exploits'}`
-        };
-    }
+    return {
+        status: item.status || item.Status || 'Malicious',
+        attack_type: item.attack_type || item.AttackType || 'Unknown',
+        severity: (item.severity || item.Severity || 'low').toLowerCase(),
+        confidence: parseFloat(item.confidence || item.Confidence || 50),
+        recommendation: item.recommendation || item.Recommendation || 'Investigate suspicious traffic.',
+        alert: item.alert || item.Alert || `Threat Detected: ${item.attack_type || 'Unknown'}`,
+        explanation: item.explanation || '',
+        adversarial_alert: item.adversarial_alert || '',
+        autonomous_response: item.autonomous_response || '',
+        preprocessing_summary: item.preprocessing_summary || null,
+        attack_distribution: item.attack_distribution || null
+    };
+}
 
     // 7. Results Dashboard Injections
     const threatStatus = document.getElementById('threatStatus');
@@ -633,3 +639,148 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/'/g, "&#039;");
     }
 });
+// ===========================
+// AI-CYBER SHIELD CHATBOT
+// ===========================
+
+const chatInput = document.getElementById("chatInput");
+const chatSendBtn = document.getElementById("chatSendBtn");
+const chatOutput = document.getElementById("chatOutput");
+
+async function sendCyberShieldQuestion() {
+    const question = chatInput.value.trim();
+
+    if (!question) {
+        return;
+    }
+
+    const userMessage = document.createElement("div");
+    userMessage.className = "user-message";
+    userMessage.innerText = "You: " + question;
+    chatOutput.appendChild(userMessage);
+
+    chatInput.value = "";
+
+    const botLoading = document.createElement("div");
+    botLoading.className = "bot-message";
+    botLoading.innerText = "AI-CYBER SHIELD: analyzing query...";
+    chatOutput.appendChild(botLoading);
+
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+
+    try {
+        console.log("Sending context to chatbot:", latestThreatContext);
+        const response = await fetch("http://127.0.0.1:5000/ask_cybershield", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            question: question,
+            context: latestThreatContext
+        })
+        });
+
+        const result = await response.json();
+
+        botLoading.innerText = "AI-CYBER SHIELD: " + result.answer;
+
+    } catch (error) {
+        botLoading.innerText = "AI-CYBER SHIELD: Unable to connect to backend.";
+    }
+
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+}
+
+if (chatSendBtn) {
+    chatSendBtn.addEventListener("click", sendCyberShieldQuestion);
+}
+
+if (chatInput) {
+    chatInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            sendCyberShieldQuestion();
+        }
+    });
+}
+// ===========================
+// AI-CYBER SHIELD CHATBOT
+// ===========================
+function generateAutoCyberShieldSummary(result) {
+    const chatOutput = document.getElementById("chatOutput");
+
+    if (!chatOutput || !result) {
+        return;
+    }
+    latestThreatContext = {
+    attack_type: result.attack_type,
+    status: result.status,
+    severity: result.severity,
+    confidence: result.confidence,
+    explanation: result.explanation,
+    recommendation: result.recommendation,
+    adversarial_alert: result.adversarial_alert,
+    autonomous_response: result.autonomous_response,
+    preprocessing_summary: result.preprocessing_summary
+};
+
+console.log("Updated threat context:", latestThreatContext);
+    let csvSummary = "";
+
+    if (result.preprocessing_summary) {
+        const uploaded = result.preprocessing_summary.uploaded_rows;
+        const processed = result.preprocessing_summary.processed_rows;
+        const removed = result.preprocessing_summary.removed_rows;
+
+        let quality = "Clean";
+
+        if (removed > 0) {
+            quality = "Needs Cleaning";
+        }
+
+        csvSummary = `
+CSV Health:
+• Uploaded Rows: ${uploaded}
+• Processed Rows: ${processed}
+• Removed Rows: ${removed}
+• CSV Quality: ${quality}
+`;
+    }
+
+    const summary = `
+AI-CYBER SHIELD Analysis Complete ✅
+
+Detected Threat:
+${result.attack_type}
+
+Status:
+${result.status}
+
+Severity:
+${result.severity.toUpperCase()}
+
+Confidence:
+${result.confidence.toFixed(2)}%
+
+Explanation:
+${result.explanation || "No detailed explanation available."}
+
+Recommendation:
+${result.recommendation}
+
+${csvSummary}
+
+Adversarial Awareness:
+${result.adversarial_alert || "No adversarial alert available."}
+
+Autonomous Response:
+${result.autonomous_response || "No autonomous response required."}
+`;
+
+    const botMessage = document.createElement("div");
+    botMessage.className = "bot-message";
+    botMessage.innerText = summary;
+
+    chatOutput.appendChild(botMessage);
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+}

@@ -1305,3 +1305,52 @@ input:checked + .slider:before {
     border-bottom: 1px solid rgba(255,255,255,0.05);
     padding-bottom: 0.25rem;
 }
+/* ===========================
+   AI CYBER SHIELD
+=========================== */
+
+.cybershield-chat-card{
+    margin-top:20px;
+    padding:20px;
+}
+
+.chat-output{
+    min-height:120px;
+    max-height:220px;
+    overflow-y:auto;
+    border:1px solid rgba(0,255,255,0.2);
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+    background:rgba(0,0,0,0.25);
+}
+
+.bot-message{
+    color:#8ffcff;
+    line-height:1.6;
+}
+
+.chat-input-row{
+    display:flex;
+    gap:10px;
+}
+
+.chat-input-row input{
+    flex:1;
+    padding:12px;
+    border:none;
+    outline:none;
+    border-radius:8px;
+    background:#07131f;
+    color:white;
+}
+
+.chat-input-row button{
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#00e5ff;
+    color:black;
+    font-weight:bold;
+}
