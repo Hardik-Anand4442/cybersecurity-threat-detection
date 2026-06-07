@@ -1354,3 +1354,80 @@ input:checked + .slider:before {
     color:black;
     font-weight:bold;
 }
+
+/* =========================
+   THREAT HISTORY CYBER STYLE
+========================= */
+
+.history-card {
+    margin-top: 25px;
+}
+
+#historyList {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.history-item {
+    background: rgba(9, 14, 35, 0.88);
+
+    border: 1px solid rgba(0, 229, 255, 0.12);
+    border-left: 4px solid #00e5ff;
+
+    border-radius: 14px;
+
+    padding: 18px 20px;
+    margin-bottom: 18px;
+
+    font-family: 'Share Tech Mono', monospace;
+
+    color: #d6e2ff;
+
+    box-shadow:
+        0 0 12px rgba(0, 229, 255, 0.05),
+        inset 0 0 8px rgba(0, 229, 255, 0.03);
+
+    transition: all 0.3s ease;
+}
+
+.history-item:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 0 16px rgba(0, 229, 255, 0.15),
+        0 0 30px rgba(0, 229, 255, 0.04);
+}
+
+.history-title {
+    color: #39ff14;
+
+    font-size: 18px;
+    letter-spacing: 1px;
+
+    margin-bottom: 10px;
+
+    display: block;
+}
+
+.history-meta {
+    color: #d6e2ff;
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.history-time {
+    color: #8fa4d4;
+
+    font-size: 12px;
+
+    margin-top: 12px;
+
+    display: block;
+}
+
+.empty-history {
+    text-align: center;
+    color: #8fa4d4;
+}

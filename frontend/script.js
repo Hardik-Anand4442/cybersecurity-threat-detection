@@ -305,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         scanResults = simulatedList;
         renderDashboardResults(scanResults);
+        generateAutoCyberShieldSummary(scanResults[0]);
         setDashboardState('results');
         showTerminalLog(`Generated ${scanResults.length} simulated detections.`, 'success');
     }
@@ -747,6 +748,33 @@ CSV Health:
 `;
     }
 
+    // ===========================
+// SAVE THREAT HISTORY
+// ===========================
+
+let history =
+    JSON.parse(localStorage.getItem("threatHistory")) || [];
+
+history.push({
+    attackType: result.attack_type,
+    severity: result.severity.toUpperCase(),
+    confidence: result.confidence.toFixed(2) + "%",
+    status: result.status,
+    time: new Date().toLocaleString()
+});
+
+// Keep only latest 20 entries
+if (history.length > 20) {
+    history.shift();
+}
+
+localStorage.setItem(
+    "threatHistory",
+    JSON.stringify(history)
+);
+
+// Refresh history UI
+loadHistory();
     const summary = `
 AI-CYBER SHIELD Analysis Complete ✅
 
@@ -784,3 +812,55 @@ ${result.autonomous_response || "No autonomous response required."}
     chatOutput.appendChild(botMessage);
     chatOutput.scrollTop = chatOutput.scrollHeight;
 }
+function loadHistory() {
+
+    let history =
+        JSON.parse(localStorage.getItem("threatHistory")) || [];
+
+    const historyList =
+        document.getElementById("historyList");
+
+    historyList.innerHTML = "";
+
+    if (history.length === 0) {
+
+        historyList.innerHTML =
+            `<li class="history-item empty-history">
+                No threat history available.
+            </li>`;
+
+        return;
+    }
+
+    [...history].reverse().forEach(item => {
+
+        const li = document.createElement("li");
+
+        li.classList.add("history-item");
+
+        li.innerHTML = `
+            <span class="history-title">
+                ${item.attackType}
+            </span>
+
+            <div class="history-meta">
+                Severity: ${item.severity}<br>
+                Confidence: ${item.confidence}<br>
+                Status: ${item.status}
+            </div>
+
+            <span class="history-time">
+                ${item.time}
+            </span>
+        `;
+
+        historyList.appendChild(li);
+    });
+}
+// ===========================
+// LOAD HISTORY ON PAGE OPEN
+// ===========================
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadHistory();
+});
