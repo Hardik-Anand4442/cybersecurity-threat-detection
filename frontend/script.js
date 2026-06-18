@@ -726,6 +726,15 @@ function generateAutoCyberShieldSummary(result) {
 };
 
 console.log("Updated threat context:", latestThreatContext);
+const csvHealthInfo =
+document.getElementById("csvHealthInfo");
+if (result.preprocessing_summary && csvHealthInfo) {
+    csvHealthInfo.innerHTML = `
+        Uploaded Rows: ${result.preprocessing_summary.uploaded_rows}<br>
+        Processed Rows: ${result.preprocessing_summary.processed_rows}<br>
+        Removed Rows: ${result.preprocessing_summary.removed_rows}
+    `;
+}
     let csvSummary = "";
 
     if (result.preprocessing_summary) {
@@ -747,6 +756,14 @@ CSV Health:
 • CSV Quality: ${quality}
 `;
     }
+const adversarialBox =
+document.getElementById("adversarialAlert");
+
+if (adversarialBox) {
+    adversarialBox.textContent =
+        result.adversarial_alert ||
+        "No adversarial attack detected.";
+}
 
     // ===========================
 // SAVE THREAT HISTORY
@@ -772,7 +789,23 @@ localStorage.setItem(
     "threatHistory",
     JSON.stringify(history)
 );
+const defenseStats =
+document.getElementById("defenseStats");
 
+if (defenseStats) {
+    defenseStats.innerHTML = `
+        Threats Learned: ${history.length}<br>
+        Last Detection: ${result.attack_type}
+    `;
+}
+const responseBox =
+document.getElementById("autonomousResponse");
+
+if (responseBox) {
+    responseBox.textContent =
+        result.autonomous_response ||
+        "No automated response required.";
+}
 // Refresh history UI
 loadHistory();
     const summary = `
@@ -811,6 +844,7 @@ ${result.autonomous_response || "No autonomous response required."}
 
     chatOutput.appendChild(botMessage);
     chatOutput.scrollTop = chatOutput.scrollHeight;
+
 }
 function loadHistory() {
 
