@@ -1,6 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 
+import io
+from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 import pandas as pd
 import joblib
 import numpy as np
@@ -342,5 +346,78 @@ def ask_cybershield():
 
     except Exception as e:
         return jsonify({"error": str(e)})
+    
+@app.route('/generate_report', methods=['POST'])
+def generate_report():
+
+    data = request.json
+
+    attack_type = data.get("attack_type", "Unknown")
+    severity = data.get("severity", "Unknown")
+    confidence = data.get("confidence", "Unknown")
+    recommendation = data.get("recommendation", "No recommendation")
+
+    buffer = io.BytesIO()
+
+    doc = SimpleDocTemplate(buffer)
+
+    styles = getSampleStyleSheet()
+
+    content = []
+
+    content.append(
+        Paragraph(
+            "AI-CYBER SHIELD Security Report",
+            styles['Title']
+        )
+    )
+
+    content.append(Spacer(1, 12))
+
+    content.append(
+        Paragraph(
+            f"<b>Attack Type:</b> {attack_type}",
+            styles['BodyText']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"<b>Severity:</b> {severity}",
+            styles['BodyText']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"<b>Confidence:</b> {confidence}",
+            styles['BodyText']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"<b>Recommendation:</b> {recommendation}",
+            styles['BodyText']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"<b>Generated On:</b> {datetime.now()}",
+            styles['BodyText']
+        )
+    )
+
+    doc.build(content)
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="Security_Report.pdf",
+        mimetype="application/pdf"
+    )
 if __name__ == "__main__":
     app.run(debug=True)

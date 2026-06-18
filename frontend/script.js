@@ -898,3 +898,66 @@ function loadHistory() {
 document.addEventListener("DOMContentLoaded", () => {
     loadHistory();
 });
+
+// ===========================
+// SECURITY REPORT GENERATOR
+// ===========================
+
+const reportBtn = document.getElementById("downloadReport");
+
+if (reportBtn) {
+
+    reportBtn.addEventListener("click", () => {
+
+        if (!latestThreatContext) {
+            alert("Run an analysis first.");
+            return;
+        }
+
+        const report = `
+=========================================
+AI-CYBER SHIELD SECURITY REPORT
+=========================================
+
+Attack Type:
+${latestThreatContext.attack_type}
+
+Status:
+${latestThreatContext.status}
+
+Severity:
+${latestThreatContext.severity}
+
+Confidence:
+${latestThreatContext.confidence}%
+
+Explanation:
+${latestThreatContext.explanation || "N/A"}
+
+Recommendation:
+${latestThreatContext.recommendation}
+
+Adversarial Awareness:
+${latestThreatContext.adversarial_alert || "None"}
+
+Autonomous Response:
+${latestThreatContext.autonomous_response || "None"}
+
+Generated:
+${new Date().toLocaleString()}
+`;
+
+        const blob = new Blob([report], {
+            type: "text/plain"
+        });
+
+        const link = document.createElement("a");
+
+        link.href = URL.createObjectURL(blob);
+
+        link.download =
+            "CyberShield_Report.txt";
+
+        link.click();
+    });
+}
