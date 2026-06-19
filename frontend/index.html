@@ -167,12 +167,22 @@
                             <span class="panel-number">03</span>
                             <h2>Threat History</h2>
                         </div>
+                    <div class="table-container">
+                        <table id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ATTACK TYPE</th>
+                                    <th>SEVERITY</th>
+                                    <th>CONFIDENCE</th>
+                                    <th>STATUS</th>
+                                    <th>TIME</th>
+                                </tr>
+                            </thead>
 
-                        <ul id="historyList">
-                            <li class="history-item empty-history">
-                                No threat history available.
-                            </li>
-                        </ul>
+                            <tbody id="historyBody"></tbody>
+                        </table>
+                    </div>
                     </div>
 
                     <!-- CSV Cleaning & Filtering Engine -->

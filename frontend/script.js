@@ -806,6 +806,7 @@ if (responseBox) {
         result.autonomous_response ||
         "No automated response required.";
 }
+
 // Refresh history UI
 loadHistory();
     const summary = `
@@ -851,44 +852,48 @@ function loadHistory() {
     let history =
         JSON.parse(localStorage.getItem("threatHistory")) || [];
 
-    const historyList =
-        document.getElementById("historyList");
+    const historyBody =
+        document.getElementById("historyBody");
 
-    historyList.innerHTML = "";
+    if (!historyBody) return;
+
+    historyBody.innerHTML = "";
 
     if (history.length === 0) {
 
-        historyList.innerHTML =
-            `<li class="history-item empty-history">
-                No threat history available.
-            </li>`;
+        historyBody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center;padding:20px;">
+                    No threat history available.
+                </td>
+            </tr>
+        `;
 
         return;
     }
 
-    [...history].reverse().forEach(item => {
+    history.reverse().forEach((item, index) => {
 
-        const li = document.createElement("li");
+        const tr = document.createElement("tr");
 
-        li.classList.add("history-item");
-
-        li.innerHTML = `
-            <span class="history-title">
-                ${item.attackType}
-            </span>
-
-            <div class="history-meta">
-                Severity: ${item.severity}<br>
-                Confidence: ${item.confidence}<br>
-                Status: ${item.status}
-            </div>
-
-            <span class="history-time">
-                ${item.time}
-            </span>
+        tr.innerHTML = `
+            <td>#${String(index + 1).padStart(3, '0')}</td>
+            <td>${item.attackType}</td>
+            <td>
+                <span class="table-pill ${item.severity.toLowerCase()}">
+                    ${item.severity}
+                </span>
+            </td>
+            <td>${item.confidence}</td>
+            <td>
+                <span class="table-status threat">
+                    ${item.status}
+                </span>
+            </td>
+            <td>${item.time}</td>
         `;
 
-        historyList.appendChild(li);
+        historyBody.appendChild(tr);
     });
 }
 // ===========================
