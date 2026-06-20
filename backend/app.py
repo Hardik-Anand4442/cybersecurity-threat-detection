@@ -29,87 +29,177 @@ def get_attack_details(attack_name, confidence):
     attack = attack_name.lower()
 
     details = {
+
         "normal": {
             "status": "Normal",
             "severity": "Low",
-            "explanation": "The uploaded traffic appears to be legitimate network activity.",
-            "recommendation": "No immediate action required. Continue monitoring the network."
+            "explanation": """
+The uploaded network traffic appears to represent legitimate and expected communication between systems. No significant indicators of malicious activity, suspicious behavior, or known attack signatures were detected during analysis.
+
+Traffic patterns remain within normal operational thresholds and do not indicate unauthorized access attempts, exploitation activities, or abnormal network behavior. While the current analysis suggests a safe environment, continuous monitoring remains essential because cyber threats can evolve rapidly over time.
+""",
+            "recommendation": """
+No immediate action is required. Continue monitoring network activity and maintain standard cybersecurity practices. Ensure security tools such as firewalls, antivirus solutions, intrusion detection systems, and endpoint protection remain active and updated. Regular vulnerability assessments, software patching, and security awareness training should be conducted to maintain a strong security posture.
+"""
         },
+
         "ddos": {
             "status": "Malicious",
             "severity": "Critical",
-            "explanation": "A Distributed Denial of Service attack attempts to overwhelm a target using traffic from multiple sources.",
-            "recommendation": "Rate-limit incoming requests, block suspicious IP ranges, and activate DDoS mitigation controls."
+            "explanation": """
+A Distributed Denial of Service (DDoS) attack is a large-scale cyberattack where multiple compromised devices simultaneously send enormous amounts of traffic toward a target server, application, or network infrastructure. The goal is to exhaust available resources such as bandwidth, processing power, memory, or connection limits.
+
+These attacks are often launched through botnets containing thousands of infected devices distributed across multiple geographic regions. Successful DDoS attacks can cause service outages, business disruption, financial losses, and damage to organizational reputation by preventing legitimate users from accessing critical services.
+""",
+            "recommendation": """
+Immediately implement traffic filtering and rate-limiting mechanisms to reduce malicious traffic volume. Activate DDoS mitigation services, web application firewalls, and CDN-based protection platforms capable of absorbing attack traffic before it reaches critical infrastructure.
+
+Administrators should continuously monitor traffic patterns, identify suspicious IP addresses, establish automated alerting mechanisms, and maintain redundant infrastructure capable of handling traffic surges. Incident response teams should also be prepared to isolate affected systems and maintain business continuity during prolonged attacks.
+"""
         },
+
         "dos": {
             "status": "Malicious",
             "severity": "High",
-            "explanation": "A Denial of Service attack attempts to disrupt services by overwhelming system resources.",
-            "recommendation": "Monitor traffic spikes, block malicious sources, and apply request throttling."
+            "explanation": """
+A Denial of Service (DoS) attack attempts to disrupt normal system operations by overwhelming a target with malicious requests from a single source or a limited number of sources. The objective is to consume available resources and prevent legitimate users from accessing services.
+
+Such attacks may impact system availability, reduce application performance, and create operational disruptions. While smaller in scale than DDoS attacks, they can still cause significant damage if not detected and mitigated promptly.
+""",
+            "recommendation": """
+Monitor network traffic for unusual spikes and repeated requests originating from the same source. Apply traffic throttling, firewall filtering, and access-control mechanisms to block suspicious traffic patterns. Regularly review logs and implement automated monitoring tools capable of detecting abnormal traffic behavior before services become unavailable.
+"""
         },
+
         "backdoor": {
             "status": "Malicious",
             "severity": "Critical",
-            "explanation": "A backdoor attack indicates unauthorized hidden access to a system.",
-            "recommendation": "Isolate the affected host, revoke suspicious access, and perform malware scanning."
+            "explanation": """
+A backdoor attack indicates the presence of hidden or unauthorized access mechanisms within a system. Attackers often install backdoors after successfully compromising a device, allowing them to bypass authentication controls and maintain persistent access without detection.
+
+Backdoors are extremely dangerous because they provide attackers with long-term access to sensitive resources, facilitate data theft, enable privilege escalation, and allow additional malware deployment throughout the network.
+""",
+            "recommendation": """
+Immediately isolate affected systems from the network and perform comprehensive forensic analysis. Revoke suspicious credentials, scan systems for malware, remove unauthorized services, and review all recent system modifications. Security teams should also investigate the initial compromise vector to prevent future reinfection.
+"""
         },
+
         "password": {
             "status": "Malicious",
             "severity": "High",
-            "explanation": "A password attack involves repeated attempts to guess or brute-force login credentials.",
-            "recommendation": "Enforce strong passwords, enable multi-factor authentication, and block repeated login attempts."
+            "explanation": """
+A password attack involves repeated attempts to obtain valid credentials through brute-force attacks, dictionary attacks, password spraying, or credential stuffing techniques. Attackers exploit weak, reused, or previously compromised passwords to gain unauthorized access to systems and sensitive information.
+
+Successful password attacks can lead to account compromise, privilege escalation, unauthorized transactions, and further movement throughout the network infrastructure.
+""",
+            "recommendation": """
+Enforce strong password policies requiring sufficient complexity and length. Implement multi-factor authentication (MFA) on all critical systems, configure account lockout policies after repeated failed login attempts, and continuously monitor authentication logs for suspicious activity. User awareness training should also be conducted to reduce credential-related risks.
+"""
         },
+
         "injection": {
             "status": "Malicious",
             "severity": "High",
-            "explanation": "Injection attacks attempt to insert malicious commands or payloads into applications or systems.",
-            "recommendation": "Validate inputs, sanitize user data, and monitor abnormal request patterns."
+            "explanation": """
+Injection attacks occur when attackers insert malicious commands, scripts, or payloads into applications that fail to properly validate user input. These attacks can target databases, operating systems, web applications, and APIs.
+
+Successful injection attacks may result in unauthorized data access, data manipulation, system compromise, privilege escalation, or complete application takeover depending on the affected environment.
+""",
+            "recommendation": """
+Implement strict input validation and sanitization throughout all applications. Use parameterized queries, prepared statements, and secure coding practices to prevent malicious input execution. Conduct regular code reviews, penetration testing, and vulnerability assessments to identify weaknesses before attackers can exploit them.
+"""
         },
+
         "mitm": {
             "status": "Malicious",
             "severity": "Critical",
-            "explanation": "A Man-in-the-Middle attack attempts to intercept or manipulate communication between two parties.",
-            "recommendation": "Use encrypted communication, validate certificates, and monitor suspicious network sessions."
+            "explanation": """
+A Man-in-the-Middle (MITM) attack occurs when an attacker secretly intercepts communications between two parties. The attacker may monitor, modify, or manipulate transmitted information without either party being aware of the compromise.
+
+MITM attacks can expose sensitive credentials, financial information, confidential communications, and authentication tokens. They are particularly dangerous because victims often remain unaware that their communications have been intercepted.
+""",
+            "recommendation": """
+Ensure all communications are encrypted using secure protocols such as HTTPS and TLS. Validate digital certificates, use VPN solutions for sensitive communications, and monitor networks for unusual session activity. Security teams should investigate suspicious network behavior and implement strong encryption policies across all systems.
+"""
         },
+
         "ransomware": {
             "status": "Malicious",
             "severity": "Critical",
-            "explanation": "Ransomware attempts to encrypt or lock data and demand payment for recovery.",
-            "recommendation": "Isolate affected devices, disable suspicious processes, restore backups, and notify security teams."
+            "explanation": """
+Ransomware is a type of malicious software designed to encrypt files, lock systems, or otherwise deny access to critical resources until a ransom payment is made. Modern ransomware campaigns frequently spread through phishing emails, software vulnerabilities, malicious downloads, or compromised credentials.
+
+A successful ransomware attack can result in severe operational disruption, loss of business-critical data, financial damage, legal consequences, and significant recovery costs.
+""",
+            "recommendation": """
+Immediately isolate infected devices from the network to prevent lateral movement. Disable suspicious processes, initiate incident response procedures, and restore affected systems using verified offline backups where possible. Ensure systems are fully patched and deploy advanced endpoint protection solutions to reduce future infection risks.
+"""
         },
+
         "scanning": {
             "status": "Malicious",
             "severity": "Medium",
-            "explanation": "Scanning activity indicates reconnaissance where an attacker probes systems, ports, or services.",
-            "recommendation": "Monitor repeated scan attempts, restrict exposed services, and block suspicious scanners."
+            "explanation": """
+Scanning activity is commonly used during the reconnaissance phase of a cyberattack. Attackers probe systems, ports, services, and network resources to identify vulnerabilities, open services, and potential attack vectors.
+
+Although scanning itself may not directly compromise a system, it often serves as an early warning sign that an attacker is gathering intelligence before launching a more serious attack.
+""",
+            "recommendation": """
+Monitor repeated scanning attempts and investigate unusual connection patterns. Restrict unnecessary services, close unused ports, strengthen firewall configurations, and deploy intrusion detection systems capable of identifying reconnaissance behavior before further exploitation occurs.
+"""
         },
+
         "xss": {
             "status": "Malicious",
             "severity": "High",
-            "explanation": "Cross-Site Scripting attempts to inject malicious scripts into web applications.",
-            "recommendation": "Apply input validation, output encoding, and secure web application filtering."
+            "explanation": """
+Cross-Site Scripting (XSS) is a web-based attack in which malicious scripts are injected into trusted websites or applications. When users access the affected application, the malicious script executes within their browser and may steal session cookies, authentication tokens, or sensitive information.
+
+XSS vulnerabilities can result in account hijacking, unauthorized actions, website defacement, and exposure of confidential user data.
+""",
+            "recommendation": """
+Implement strict input validation and output encoding throughout web applications. Utilize Content Security Policy (CSP) headers, perform regular security testing, and sanitize all user-generated content before processing or displaying it. Secure development practices should be followed throughout the software development lifecycle.
+"""
         }
     }
 
     result = details.get(attack, {
         "status": "Unknown",
         "severity": "Medium",
-        "explanation": "The traffic pattern could not be mapped to a known category.",
-        "recommendation": "Manual review is recommended."
+        "explanation": """
+The detected traffic pattern could not be confidently mapped to a known attack category within the current knowledge base. Additional investigation may be required to determine the nature and impact of the observed activity.
+""",
+        "recommendation": """
+Conduct manual analysis of the affected traffic, review security logs, and perform further investigation to determine whether the activity represents a legitimate operation or a potential cybersecurity threat.
+"""
     })
 
     if confidence < 60:
-        adversarial_alert = "Potential adversarial or manipulated traffic pattern detected due to low model confidence."
+        adversarial_alert = """
+Potential adversarial or manipulated traffic pattern detected. The model confidence score is lower than expected, which may indicate unusual traffic characteristics, evasive attack techniques, or data specifically designed to confuse machine learning models.
+"""
     else:
-        adversarial_alert = "No adversarial manipulation indicators detected."
+        adversarial_alert = """
+No significant indicators of adversarial manipulation were detected. The analyzed traffic appears consistent with patterns previously observed during model training and evaluation.
+"""
 
     if result["status"] == "Malicious":
-        autonomous_response = f"Suggested action: isolate affected traffic and apply mitigation for {attack_name}."
+        autonomous_response = f"""
+AUTONOMOUS RESPONSE ENGINE ACTIVATED
+
+• Threat classification completed successfully.
+• Suspicious activity associated with {attack_name} has been flagged.
+• Recommended mitigation procedures have been generated automatically.
+• Security alert has been issued for administrator review.
+• Threat information has been logged for future learning and evolving defense analysis.
+• Continued monitoring is recommended until the threat has been fully mitigated.
+"""
     else:
-        autonomous_response = "No autonomous response required."
+        autonomous_response = """
+No autonomous response was required because the analyzed traffic appears legitimate. The system will continue monitoring future traffic for abnormal behavior and emerging threats.
+"""
 
     return result, adversarial_alert, autonomous_response
-
 
 @app.route("/predict_csv", methods=["POST"])
 def predict_csv():
