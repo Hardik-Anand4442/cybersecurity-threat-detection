@@ -160,12 +160,23 @@
 
                     </div>
 
-                    <!-- THREAT HISTORY -->
+                    <!-- DETECTION LOG REGISTER -->
                     <div class="glass-card history-card">
 
                         <div class="panel-header">
                             <span class="panel-number">03</span>
-                            <h2>Threat History</h2>
+                            <h2>Detection Log Register</h2>
+                        </div>
+                        <div class="history-controls">
+                            <input
+                                type="text"
+                                id="historySearch"
+                                placeholder="Filter detection log..."
+                            >
+                            
+                           <button id="exportHistoryBtn" class="action-btn">
+                               Export Scans
+                           </button>
                         </div>
                     <div class="table-container">
                         <table id="historyTable">
@@ -217,40 +228,11 @@
                         </div>
                     </div>
 
-                    <!-- MULTI-ROW DETECTION LOGS REGISTER -->
-                    <div class="glass-card register-logs-card">
-                        <div class="table-controls">
-                            <h3>Detection Log Register</h3>
-                            <div class="table-actions">
-                                <div class="search-input-wrapper">
-                                    <input type="text" id="tableSearch" placeholder="Filter vectors...">
-                                </div>
-                                <button class="secondary-btn" id="exportCsvBtn">Export Scans</button>
-                            </div>
-                        </div>
-                        <div class="table-scroll-container">
-                            <table class="cyber-table" id="threatTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>ATTACK TYPE</th>
-                                        <th>SEVERITY</th>
-                                        <th>CONFIDENCE</th>
-                                        <th>STATUS</th>
-                                        <th>RECOMMENDATION</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="threatTableBody">
-                                    <!-- Dynamic Rows -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
+                    
                     <!-- THREAT TYPE DISTRIBUTION (Pie Chart) -->
                     <div class="glass-card distribution-card">
                         <div class="panel-header">
-                            <span class="panel-number">03</span>
+                            <span class="panel-number">04</span>
                             <h2>Threat Type Distribution</h2>
                         </div>
                         <div class="chart-flex-container">
@@ -265,7 +247,7 @@
                     <!-- AI-CYBER SHIELD ASSISTANT -->
 <div class="glass-card cybershield-chat-card">
     <div class="panel-header">
-        <span class="panel-number">04</span>
+        <span class="panel-number">05</span>
         <h2>🤖 AI-CYBER SHIELD Assistant</h2>
     </div>
 

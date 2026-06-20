@@ -441,15 +441,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadAnalysisResultCard(row) {
         // Populate Analysis Result card (Screenshot 2 specifications)
-        if (threatStatus) {
-            threatStatus.textContent = row.status;
-            threatStatus.className = 'val status-val';
-            
-            const lowStatus = row.status.toLowerCase();
-            if (lowStatus === 'malicious' || lowStatus === 'suspicious') {
-                threatStatus.classList.add('malicious');
-            }
-        }
+       if (threatStatus) {
+    threatStatus.textContent = row.status;
+    threatStatus.className = "val status-val";
+
+    const status = row.status.toLowerCase();
+
+    if (status === "malicious") {
+        threatStatus.classList.add("malicious");
+    }
+    else if (status === "suspicious") {
+        threatStatus.classList.add("suspicious");
+    }
+    else {
+        threatStatus.classList.add("clean");
+    }
+}
         if (threatAttackType) threatAttackType.textContent = row.attack_type;
         if (threatSeverity) {
             // Capitalize severity word nicely
@@ -810,35 +817,32 @@ if (responseBox) {
 // Refresh history UI
 loadHistory();
     const summary = `
-AI-CYBER SHIELD Analysis Complete ✅
+🛡 AI-CYBER SHIELD THREAT INTELLIGENCE REPORT
 
-Detected Threat:
+Threat Type:
 ${result.attack_type}
 
-Status:
-${result.status}
+Threat Overview:
+${result.explanation}
 
-Severity:
+Severity Assessment:
 ${result.severity.toUpperCase()}
 
-Confidence:
+Confidence Score:
 ${result.confidence.toFixed(2)}%
 
-Explanation:
-${result.explanation || "No detailed explanation available."}
-
-Recommendation:
+Recommended Countermeasures:
 ${result.recommendation}
 
-${csvSummary}
+Autonomous Response:
+${result.autonomous_response}
 
 Adversarial Awareness:
-${result.adversarial_alert || "No adversarial alert available."}
+${result.adversarial_alert}
 
-Autonomous Response:
-${result.autonomous_response || "No autonomous response required."}
+CSV Data Quality:
+${csvSummary}
 `;
-
     const botMessage = document.createElement("div");
     botMessage.className = "bot-message";
     botMessage.innerText = summary;
@@ -894,6 +898,65 @@ function loadHistory() {
         `;
 
         historyBody.appendChild(tr);
+    });
+}
+
+const historySearch = document.getElementById("historySearch");
+
+if (historySearch) {
+    historySearch.addEventListener("input", function () {
+
+        const query = this.value.toLowerCase();
+
+        const rows = document.querySelectorAll("#historyBody tr");
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+
+            row.style.display =
+                text.includes(query) ? "" : "none";
+        });
+    });
+}
+const exportHistoryBtn =
+    document.getElementById("exportHistoryBtn");
+
+if (exportHistoryBtn) {
+
+    exportHistoryBtn.addEventListener("click", () => {
+
+        let history =
+            JSON.parse(localStorage.getItem("threatHistory")) || [];
+
+        if (history.length === 0) {
+            alert("No threat history available.");
+            return;
+        }
+
+        let csv =
+            "ID,Attack Type,Severity,Confidence,Status,Time\n";
+
+        history.forEach((item, index) => {
+
+            csv += `${index + 1},"${item.attackType}","${item.severity}","${item.confidence}","${item.status}","${item.time}"\n`;
+
+        });
+
+        const blob =
+            new Blob([csv], { type: "text/csv" });
+
+        const url =
+            window.URL.createObjectURL(blob);
+
+        const a =
+            document.createElement("a");
+
+        a.href = url;
+        a.download = "Threat_History_Report.csv";
+
+        a.click();
+
+        window.URL.revokeObjectURL(url);
     });
 }
 // ===========================

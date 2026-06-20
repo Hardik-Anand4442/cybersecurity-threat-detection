@@ -1369,63 +1369,6 @@ input:checked + .slider:before {
     margin-top: 20px;
 }
 
-.history-item {
-    background: rgba(9, 14, 35, 0.88);
-
-    border: 1px solid rgba(0, 229, 255, 0.12);
-    border-left: 4px solid #00e5ff;
-
-    border-radius: 14px;
-
-    padding: 18px 20px;
-    margin-bottom: 18px;
-
-    font-family: 'Share Tech Mono', monospace;
-
-    color: #d6e2ff;
-
-    box-shadow:
-        0 0 12px rgba(0, 229, 255, 0.05),
-        inset 0 0 8px rgba(0, 229, 255, 0.03);
-
-    transition: all 0.3s ease;
-}
-
-.history-item:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 0 16px rgba(0, 229, 255, 0.15),
-        0 0 30px rgba(0, 229, 255, 0.04);
-}
-
-.history-title {
-    color: #39ff14;
-
-    font-size: 18px;
-    letter-spacing: 1px;
-
-    margin-bottom: 10px;
-
-    display: block;
-}
-
-.history-meta {
-    color: #d6e2ff;
-
-    font-size: 14px;
-    line-height: 1.8;
-}
-
-.history-time {
-    color: #8fa4d4;
-
-    font-size: 12px;
-
-    margin-top: 12px;
-
-    display: block;
-}
 
 .empty-history {
     text-align: center;
@@ -1489,3 +1432,123 @@ input:checked + .slider:before {
 .table-container{
     overflow-x:auto;
 }
+
+/* ==========================
+   THREAT HISTORY - SAME STYLE AS DETECTION LOG REGISTER
+========================== */
+
+.history-card {
+    margin-top: 20px;
+}
+
+.history-card h2,
+.history-card h3,
+.history-card th,
+.history-card td,
+.history-card input,
+.history-card button {
+    font-family: "Share Tech Mono", monospace;
+}
+
+/* Controls */
+.history-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+#historySearch {
+    flex: 1;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(0,240,255,0.3);
+    color: #e2e8f0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: "Share Tech Mono", monospace;
+}
+
+#historySearch:focus {
+    outline: none;
+    border-color: #00f0ff;
+    box-shadow: 0 0 12px rgba(0,240,255,.35);
+}
+
+/* Export Button */
+#exportHistoryBtn {
+    background: transparent;
+    border: 1px solid #00f0ff;
+    color: #00f0ff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: "Share Tech Mono", monospace;
+    text-transform: uppercase;
+    transition: all .25s ease;
+}
+
+#exportHistoryBtn:hover {
+    background: rgba(0,240,255,.15);
+    box-shadow: 0 0 15px rgba(0,240,255,.4);
+}
+
+/* Table */
+#historyTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Share Tech Mono", monospace;
+}
+
+#historyTable th {
+    padding: 12px;
+    text-align: left;
+    color: #00f0ff;
+    border-bottom: 1px solid rgba(0,240,255,.3);
+    letter-spacing: 1px;
+}
+
+#historyTable td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    color: #e2e8f0;
+}
+
+#historyTable tbody tr:hover {
+    background: rgba(0,240,255,.08);
+}
+
+/* Scroll Area */
+.table-container {
+    overflow-x: auto;
+}
+
+/* Cyber Shield Feature Cards */
+.dashboard-card {
+    font-family: "Share Tech Mono", monospace;
+}
+.dashboard-card h3 {
+    font-family: "Share Tech Mono", monospace;
+    color: #00f0ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 8px rgba(0,240,255,0.5);
+}
+#csvHealthInfo,
+#adversarialAlert,
+#defenseStats,
+#autonomousResponse {
+    font-family: "Share Tech Mono", monospace;
+    color: #ffffff;
+    line-height: 1.0;
+    font-size: 14px;
+    white-space: pre-line;
+}
+#csvHealthInfo strong,
+#adversarialAlert strong,
+#defenseStats strong,
+#autonomousResponse strong {
+    color: #39ff14;
+}
+
