@@ -650,13 +650,99 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===========================
 // AI-CYBER SHIELD CHATBOT
 // ===========================
-
+const responseMode =
+document.getElementById("responseMode");
 const chatInput = document.getElementById("chatInput");
 const chatSendBtn = document.getElementById("chatSendBtn");
 const chatOutput = document.getElementById("chatOutput");
+const modeSelect =
+document.getElementById("responseMode");
+
+const modeTitle =
+document.getElementById("modeTitle");
+
+const modeDescription =
+document.getElementById("modeDescription");
+
+modeSelect.addEventListener("change", () => {
+
+    const mode = modeSelect.value;
+
+    if(mode === "analyst"){
+        modeTitle.textContent =
+        "🧠 Analyst Mode Active";
+
+        modeDescription.textContent =
+        "Detailed threat analysis, attack explanations, prevention methods and cybersecurity learning guidance.";
+    }
+
+    if(mode === "soc"){
+        modeTitle.textContent =
+        "🚨 SOC Mode Active";
+
+        modeDescription.textContent =
+        "Incident response focused. Displays severity, indicators of compromise, containment actions and escalation procedures.";
+    }
+
+    if(mode === "auto"){
+        modeTitle.textContent =
+        "🤖 Autonomous Mode Active";
+
+        modeDescription.textContent =
+        "Generates automated mitigation recommendations and AI-driven response workflows.";
+    }
+
+    if(mode === "executive"){
+        modeTitle.textContent =
+        "📊 Executive Mode Active";
+
+        modeDescription.textContent =
+        "Provides business impact analysis, risk summaries and executive-level security insights.";
+    }
+
+});
+responseMode.addEventListener("change", ()=>{
+
+    const desc =
+    document.getElementById("modeDescription");
+
+    if(responseMode.value==="analyst"){
+        desc.innerText =
+        "Detailed explanations and learning support.";
+    }
+
+    if(responseMode.value==="soc"){
+        desc.innerText =
+        "Security Operations Center incident analysis.";
+    }
+
+    if(responseMode.value==="autonomous"){
+        desc.innerText =
+        "AI-generated automated response recommendations.";
+    }
+
+});
+if(responseMode){
+
+    responseMode.addEventListener("change", ()=>{
+
+        const badge =
+        document.getElementById("activeModeBadge");
+
+        badge.textContent =
+        responseMode.options[
+            responseMode.selectedIndex
+        ].text + " Active";
+    });
+
+}
 
 async function sendCyberShieldQuestion() {
     const question = chatInput.value.trim();
+    const selectedMode =
+    responseMode ?
+    responseMode.value :
+    "analyst";
 
     if (!question) {
         return;
@@ -664,7 +750,8 @@ async function sendCyberShieldQuestion() {
 
     const userMessage = document.createElement("div");
     userMessage.className = "user-message";
-    userMessage.innerText = "You: " + question;
+    userMessage.innerText =
+`[${selectedMode.toUpperCase()}] You: ${question}`;
     chatOutput.appendChild(userMessage);
 
     chatInput.value = "";
@@ -819,8 +906,11 @@ loadHistory();
     const summary = `
 🛡 AI-CYBER SHIELD THREAT INTELLIGENCE REPORT
 
+Operating Mode:
+${responseMode.value.toUpperCase()}
+
 Threat Type:
-${result.attack_type}
+${result.attack_type.toUpperCase()}
 
 Threat Overview:
 ${result.explanation}
