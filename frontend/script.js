@@ -650,99 +650,55 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===========================
 // AI-CYBER SHIELD CHATBOT
 // ===========================
-const responseMode =
-document.getElementById("responseMode");
 const chatInput = document.getElementById("chatInput");
 const chatSendBtn = document.getElementById("chatSendBtn");
 const chatOutput = document.getElementById("chatOutput");
-const modeSelect =
-document.getElementById("responseMode");
+let selectedMode = "auto";
 
-const modeTitle =
-document.getElementById("modeTitle");
+const modeButtons =
+document.querySelectorAll(".mode-btn");
 
-const modeDescription =
-document.getElementById("modeDescription");
+modeButtons.forEach(btn => {
 
-modeSelect.addEventListener("change", () => {
+    btn.addEventListener("click", () => {
+        modeButtons.forEach(b =>
+    b.classList.remove("active")
+);
 
-    const mode = modeSelect.value;
+btn.classList.add("active");
 
-    if(mode === "analyst"){
-        modeTitle.textContent =
-        "🧠 Analyst Mode Active";
+        selectedMode = btn.dataset.mode;
 
-        modeDescription.textContent =
-        "Detailed threat analysis, attack explanations, prevention methods and cybersecurity learning guidance.";
-    }
+        const modeTitle =
+        document.getElementById("modeTitle");
 
-    if(mode === "soc"){
-        modeTitle.textContent =
-        "🚨 SOC Mode Active";
+        const modeDescription =
+        document.getElementById("modeDescription");
 
-        modeDescription.textContent =
-        "Incident response focused. Displays severity, indicators of compromise, containment actions and escalation procedures.";
-    }
+        if(selectedMode === "auto"){
+            modeTitle.textContent =
+            "🤖 Automated Response Mode";
 
-    if(mode === "auto"){
-        modeTitle.textContent =
-        "🤖 Autonomous Mode Active";
+            modeDescription.textContent =
+            "AI automatically generates reports and recommendations.";
+        }
 
-        modeDescription.textContent =
-        "Generates automated mitigation recommendations and AI-driven response workflows.";
-    }
+        if(selectedMode === "prompt"){
+            modeTitle.textContent =
+            "💬 Prompt Mode";
 
-    if(mode === "executive"){
-        modeTitle.textContent =
-        "📊 Executive Mode Active";
+            modeDescription.textContent =
+            "User provides prompts to receive information and actions.";
+        }
 
-        modeDescription.textContent =
-        "Provides business impact analysis, risk summaries and executive-level security insights.";
-    }
-
-});
-responseMode.addEventListener("change", ()=>{
-
-    const desc =
-    document.getElementById("modeDescription");
-
-    if(responseMode.value==="analyst"){
-        desc.innerText =
-        "Detailed explanations and learning support.";
-    }
-
-    if(responseMode.value==="soc"){
-        desc.innerText =
-        "Security Operations Center incident analysis.";
-    }
-
-    if(responseMode.value==="autonomous"){
-        desc.innerText =
-        "AI-generated automated response recommendations.";
-    }
-
-});
-if(responseMode){
-
-    responseMode.addEventListener("change", ()=>{
-
-        const badge =
-        document.getElementById("activeModeBadge");
-
-        badge.textContent =
-        responseMode.options[
-            responseMode.selectedIndex
-        ].text + " Active";
     });
 
-}
-
+});
 async function sendCyberShieldQuestion() {
+
     const question = chatInput.value.trim();
-    const selectedMode =
-    responseMode ?
-    responseMode.value :
-    "analyst";
+
+    console.log(selectedMode);
 
     if (!question) {
         return;
@@ -751,42 +707,69 @@ async function sendCyberShieldQuestion() {
     const userMessage = document.createElement("div");
     userMessage.className = "user-message";
     userMessage.innerText =
-`[${selectedMode.toUpperCase()}] You: ${question}`;
+    `[${selectedMode.toUpperCase()}] You: ${question}`;
+
     chatOutput.appendChild(userMessage);
 
     chatInput.value = "";
 
     const botLoading = document.createElement("div");
     botLoading.className = "bot-message";
-    botLoading.innerText = "AI-CYBER SHIELD: analyzing query...";
+    botLoading.innerText =
+    "AI-CYBER SHIELD: analyzing query...";
+
     chatOutput.appendChild(botLoading);
 
-    chatOutput.scrollTop = chatOutput.scrollHeight;
-
     try {
-        console.log("Sending context to chatbot:", latestThreatContext);
-        const response = await fetch("http://127.0.0.1:5000/ask_cybershield", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-            question: question,
-            context: latestThreatContext
-        })
-        });
+       
+        const response = await fetch(
+            "http://127.0.0.1:5000/ask_cybershield",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    question: question,
+                    context: latestThreatContext,
+                    mode: selectedMode
+                })
+            }
+        );
 
         const result = await response.json();
 
-        botLoading.innerText = "AI-CYBER SHIELD: " + result.answer;
+        botLoading.innerText =
+        "AI-CYBER SHIELD: " + result.answer;
+         if(selectedMode === "auto"){
 
-    } catch (error) {
-        botLoading.innerText = "AI-CYBER SHIELD: Unable to connect to backend.";
+        generateAutoCyberShieldSummary(result);
+
+        }else{
+
+            const botMessage =
+            document.createElement("div");
+
+            botMessage.className =
+            "bot-message";
+
+            botMessage.innerText =
+            "Analysis completed. Ask AI-CYBER SHIELD about the detected threat.";
+
+            chatOutput.appendChild(botMessage);
+
+        }
+
+    } catch(error) {
+
+        botLoading.innerText =
+        "AI-CYBER SHIELD: Unable to connect to backend.";
+
     }
 
     chatOutput.scrollTop = chatOutput.scrollHeight;
-}
 
+} // <-- ONLY ONE closing brace here
 if (chatSendBtn) {
     chatSendBtn.addEventListener("click", sendCyberShieldQuestion);
 }
@@ -907,7 +890,9 @@ loadHistory();
 🛡 AI-CYBER SHIELD THREAT INTELLIGENCE REPORT
 
 Operating Mode:
-${responseMode.value.toUpperCase()}
+${selectedMode === "auto"
+ ? "Automated Response Mode"
+ : "Prompt Mode"}
 
 Threat Type:
 ${result.attack_type.toUpperCase()}

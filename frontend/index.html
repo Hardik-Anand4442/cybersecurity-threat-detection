@@ -244,24 +244,32 @@
                             </div>
                         </div>
                     </div>
-                   <div class="response-mode-card">
+                 
+                    <div class="response-mode-card">
 
                         <div class="mode-header">
                             RESPONSE MODE
                         </div>
 
-                        <select id="responseMode" class="response-mode-select">
-                            <option value="analyst">🧠 Analyst Mode</option>
-                            <option value="soc">🚨 SOC Mode</option>
-                            <option value="auto">🤖 Autonomous Mode</option>
-                            <option value="executive">📊 Executive Mode</option>
-                        </select>
+                        <div class="mode-selector">
+
+                            <button class="mode-btn active" data-mode="auto">
+                                🤖 Automated Response
+                            </button>
+
+                            <button class="mode-btn" data-mode="prompt">
+                                💬 Prompt Mode
+                            </button>
+
+                        </div>
 
                         <div class="mode-display">
-                            <h3 id="modeTitle">🧠 Analyst Mode Active</h3>
+                            <h3 id="modeTitle">
+                                🤖 Automated Response Active
+                            </h3>
 
                             <p id="modeDescription">
-                                Detailed educational explanations.
+                                CyberShield automatically generates threat analysis, recommendations and security reports without user prompts.
                             </p>
                         </div>
 
