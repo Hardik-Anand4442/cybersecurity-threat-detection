@@ -356,8 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         scanResults = normalized;
         renderDashboardResults(scanResults);
-        setDashboardState('results');
+        setDashboardState("results");
+
+        if (selectedMode === "auto") {
         generateAutoCyberShieldSummary(scanResults[0]);
+    }
         showTerminalLog(`Ingested ${scanResults.length} live records.`, 'success');
     }
 
@@ -698,30 +701,22 @@ async function sendCyberShieldQuestion() {
 
     const question = chatInput.value.trim();
 
-    console.log(selectedMode);
-
-    if (!question) {
-        return;
-    }
+    if (!question) return;
 
     const userMessage = document.createElement("div");
     userMessage.className = "user-message";
-    userMessage.innerText =
-    `[${selectedMode.toUpperCase()}] You: ${question}`;
-
+    userMessage.innerText = `[${selectedMode.toUpperCase()}] You: ${question}`;
     chatOutput.appendChild(userMessage);
 
     chatInput.value = "";
 
     const botLoading = document.createElement("div");
     botLoading.className = "bot-message";
-    botLoading.innerText =
-    "AI-CYBER SHIELD: analyzing query...";
-
+    botLoading.innerText = "AI-CYBER SHIELD: analyzing query...";
     chatOutput.appendChild(botLoading);
 
     try {
-       
+
         const response = await fetch(
             "http://127.0.0.1:5000/ask_cybershield",
             {
@@ -739,36 +734,39 @@ async function sendCyberShieldQuestion() {
 
         const result = await response.json();
 
-        botLoading.innerText =
-        "AI-CYBER SHIELD: " + result.answer;
-         if(selectedMode === "auto"){
+        // -----------------------
+        // PROMPT MODE
+        // -----------------------
+        if (selectedMode === "prompt") {
 
-        generateAutoCyberShieldSummary(result);
-
-        }else{
-
-            const botMessage =
-            document.createElement("div");
-
-            botMessage.className =
-            "bot-message";
-
-            botMessage.innerText =
-            "Analysis completed. Ask AI-CYBER SHIELD about the detected threat.";
-
-            chatOutput.appendChild(botMessage);
+            botLoading.innerText =
+                "AI-CYBER SHIELD: " + result.answer;
 
         }
 
-    } catch(error) {
+        // -----------------------
+        // AUTO MODE
+        // -----------------------
+        else {
+
+            botLoading.innerText =
+                "AI-CYBER SHIELD: Generating autonomous report...";
+
+            generateAutoCyberShieldSummary(result);
+
+        }
+
+    }
+    catch (error) {
 
         botLoading.innerText =
-        "AI-CYBER SHIELD: Unable to connect to backend.";
+            "AI-CYBER SHIELD: Unable to connect to backend.";
+
+        console.error(error);
 
     }
 
     chatOutput.scrollTop = chatOutput.scrollHeight;
-
 } // <-- ONLY ONE closing brace here
 if (chatSendBtn) {
     chatSendBtn.addEventListener("click", sendCyberShieldQuestion);

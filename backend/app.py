@@ -1,3 +1,6 @@
+from multiprocessing import context
+from statistics import mode
+
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 
@@ -266,7 +269,7 @@ def predict_csv():
             "status": details["status"],
             "attack_type": attack_name,
             "severity": details["severity"],
-            "confidence": f"{avg_confidence}%",
+            "confidence": avg_confidence,
             "explanation": details["explanation"],
             "recommendation": details["recommendation"],
             "alert": (
@@ -295,6 +298,8 @@ def ask_cybershield():
         data = request.json
         question = data.get("question", "").lower()
         context = data.get("context", None)
+        mode = data.get("mode", "auto").lower()
+        print("Current Mode:", mode)
 
         aliases = {
             "xxs": "xss",
@@ -387,56 +392,99 @@ def ask_cybershield():
             if key in question:
                 current_attack = key
 
-        if ("this" in question or "detected" in question or "current" in question) and current_attack:
-            info = attack_info.get(current_attack)
+        # ==========================
+        # PROMPT MODE
+        # ==========================
+        if mode == "prompt":
 
-            if not info:
+            if ("this" in question or "detected" in question or "current" in question) and current_attack:
+
+                info = attack_info.get(current_attack)
+
+                if not info:
+                    return jsonify({
+                        "mode": mode,
+                        "answer": "The current detected attack is not available in my knowledge base yet."
+                    })
+
+                if "prevent" in question or "avoid" in question or "stop" in question:
+                    return jsonify({
+                        "mode": mode,
+                        "answer": f"For the current detected threat ({info['name']}), prevention includes: {info['prevention']}"
+                    })
+
+                if "danger" in question or "risk" in question or "harm" in question:
+                    return jsonify({
+                        "mode": mode,
+                        "answer": f"The current detected threat ({info['name']}) is dangerous because: {info['danger']}"
+                    })
+
                 return jsonify({
-                    "answer": "The current detected attack is not available in my knowledge base yet."
-                })
-
-            if "prevent" in question or "avoid" in question or "stop" in question:
-                return jsonify({
-                    "answer": f"For the current detected threat ({info['name']}), prevention includes: {info['prevention']}"
-                })
-
-            if "danger" in question or "risk" in question or "harm" in question:
-                return jsonify({
-                    "answer": f"The current detected threat ({info['name']}) is dangerous because: {info['danger']}"
-                })
-
-            return jsonify({
-                "answer": (
-                    f"The current detected threat is {info['name']}.\n\n"
-                    f"What it is: {info['meaning']}\n\n"
-                    f"Why it is dangerous: {info['danger']}\n\n"
-                    f"Prevention: {info['prevention']}"
-                )
-            })
-
-        for key, info in attack_info.items():
-            if key in question:
-                return jsonify({
+                    "mode": mode,
                     "answer": (
-                        f"{info['name']}\n\n"
+                        f"The current detected threat is {info['name']}\n\n"
                         f"What it is: {info['meaning']}\n\n"
                         f"Why it is dangerous: {info['danger']}\n\n"
                         f"Prevention: {info['prevention']}"
                     )
                 })
 
-        if "project" in question or "system" in question or "ids" in question or "use" in question:
+            for key, info in attack_info.items():
+                if key in question:
+                    return jsonify({
+                        "mode": mode,
+                        "answer": (
+                            f"{info['name']}\n\n"
+                            f"What it is: {info['meaning']}\n\n"
+                            f"Why it is dangerous: {info['danger']}\n\n"
+                            f"Prevention: {info['prevention']}"
+                        )
+                    })
+
+            if ("project" in question or
+                "system" in question or
+                "ids" in question or
+                "use" in question):
+
+                return jsonify({
+                    "mode": mode,
+                    "answer": "AI-CYBER SHIELD is a deployable AI-driven intrusion detection prototype. It analyzes network traffic CSV files, detects attack classes, explains threats, provides recommendations, supports adversarial awareness, and assists users through a cybersecurity assistant."
+                })
+
             return jsonify({
-                "answer": "AI-CYBER SHIELD is a deployable AI-driven intrusion detection prototype. It analyzes network traffic CSV files, detects 10 attack classes, explains threats, provides recommendations, supports adversarial awareness, and assists users through a cybersecurity assistant."
+                "mode": mode,
+                "answer": "I can answer questions about the current detected threat, prevention methods, severity, recommendations, CSV quality, adversarial awareness, autonomous response, and IDS project functionality."
             })
 
-        return jsonify({
-            "answer": "I can answer questions about the current detected threat, prevention methods, severity, recommendations, CSV quality, adversarial awareness, autonomous response, and IDS project functionality."
-        })
+        # ==========================
+        # AUTO MODE
+        # ==========================
+        else:
+
+            if not context:
+                return jsonify({
+                    "mode": mode,
+                    "answer": "Please analyze a CSV file first."
+                })
+
+            return jsonify({
+                "mode": mode,
+                "attack_type": context.get("attack_type"),
+                "status": context.get("status"),
+                "severity": context.get("severity"),
+                "confidence": context.get("confidence"),
+                "explanation": context.get("explanation"),
+                "recommendation": context.get("recommendation"),
+                "adversarial_alert": context.get("adversarial_alert"),
+                "autonomous_response": context.get("autonomous_response"),
+                "preprocessing_summary": context.get("preprocessing_summary")
+            })
 
     except Exception as e:
-        return jsonify({"error": str(e)})
-    
+        return jsonify({
+            "error": str(e)
+        }), 500
+
 @app.route('/generate_report', methods=['POST'])
 def generate_report():
 
