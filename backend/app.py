@@ -1,3 +1,4 @@
+from importlib.metadata import distribution
 from multiprocessing import context
 from statistics import mode
 
@@ -32,6 +33,20 @@ def get_attack_details(attack_name, confidence):
     attack = attack_name.lower()
 
     details = {
+
+        "multiple attacks": {
+    "status": "Malicious",
+    "severity": "Critical",
+    "explanation": (
+        "The uploaded traffic contains multiple attack categories. "
+        "This indicates that the network may be experiencing a coordinated "
+        "or multi-stage cyber attack involving more than one attack technique."
+    ),
+    "recommendation": (
+        "Investigate each detected attack individually, prioritize high-severity "
+        "threats, isolate affected systems, and perform a comprehensive security review."
+    )
+    },
 
         "normal": {
             "status": "Normal",
@@ -264,6 +279,19 @@ def predict_csv():
 
         decoded_predictions = target_encoder.inverse_transform(predictions)
         distribution = pd.Series(decoded_predictions).value_counts().to_dict()
+        # Detect if multiple attack types are present
+        malicious_attacks = {
+            attack: count
+            for attack, count in distribution.items()
+            if attack.lower() != "normal"
+    }
+
+        if len(malicious_attacks) > 1:
+            attack_name = "Multiple Attacks"
+        print("\n==============================")
+        print("Attack Distribution:")
+        print(distribution)
+        print("==============================\n")
 
         return jsonify({
             "status": details["status"],
@@ -284,7 +312,8 @@ def predict_csv():
                 "processed_rows": processed_rows,
                 "removed_rows": removed_rows
             },
-            "attack_distribution": distribution
+            "attack_distribution": distribution,
+            "detected_attacks": list(malicious_attacks.keys()),
         })
 
     except Exception as e:

@@ -460,7 +460,32 @@ document.addEventListener('DOMContentLoaded', () => {
         threatStatus.classList.add("clean");
     }
 }
-        if (threatAttackType) threatAttackType.textContent = row.attack_type;
+       if (threatAttackType) {
+
+    if (
+        row.attack_type === "Multiple Attacks" &&
+        row.attack_distribution
+    ) {
+
+        let html = "<strong>Multiple Attacks Detected</strong><br>";
+
+        for (const [attack, count] of Object.entries(row.attack_distribution)) {
+
+            if (attack.toLowerCase() !== "normal") {
+                html += `<br>• ${attack} (${count})`;
+            }
+
+        }
+
+        threatAttackType.innerHTML = html;
+
+    } else {
+
+        threatAttackType.textContent = row.attack_type;
+
+    }
+
+}
         if (threatSeverity) {
             // Capitalize severity word nicely
             threatSeverity.textContent = row.severity.charAt(0).toUpperCase() + row.severity.slice(1);
