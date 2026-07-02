@@ -353,14 +353,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (normalized.length === 0) {
             throw new Error('Detections database parsed empty.');
         }
-
         scanResults = normalized;
-        renderDashboardResults(scanResults);
-        setDashboardState("results");
+        console.log("========== API RESULTS ==========");
+        console.log("Total Records:", scanResults.length);
+        console.table(scanResults);
 
-        if (selectedMode === "auto") {
+        renderDashboardResults(scanResults);
+        setDashboardState('results');
         generateAutoCyberShieldSummary(scanResults[0]);
-    }
         showTerminalLog(`Ingested ${scanResults.length} live records.`, 'success');
     }
 
@@ -393,8 +393,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDashboardResults(results) {
         // Render logs registry
+            console.log("renderDashboardResults()");
+            console.table(results);
         if (threatTableBody) {
             threatTableBody.innerHTML = '';
+            console.table(results);
             results.forEach((row, idx) => {
                 const tr = document.createElement('tr');
                 tr.dataset.index = idx;
@@ -444,7 +447,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadAnalysisResultCard(row) {
         // Populate Analysis Result card (Screenshot 2 specifications)
-       if (threatStatus) {
+        console.log("Clicked Row");
+        console.log(row);
+        if (threatStatus) {
     threatStatus.textContent = row.status;
     threatStatus.className = "val status-val";
 
