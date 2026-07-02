@@ -230,11 +230,18 @@ def predict_csv():
         # Basic preprocessing
         df.columns = df.columns.str.strip()
         df = df.replace([np.inf, -np.inf], np.nan)
-        df = df.dropna()
+        df = df.fillna("unknown")
 
         processed_rows = len(df)
         removed_rows = original_rows - processed_rows
 
+        if df.empty:
+            return jsonify({
+            "error": "No valid rows after preprocessing",
+            "uploaded_rows": original_rows,
+            "processed_rows": 0,
+            "removed_rows": original_rows
+            }), 400
         # Check required columns
         missing_cols = [col for col in feature_columns if col not in df.columns]
 
@@ -246,7 +253,7 @@ def predict_csv():
             })
 
         # Keep only training features
-        df = df[feature_columns]
+        df = df.reindex(columns=feature_columns, fill_value=0)
 
         # Encode categorical columns using SAME encoders from training
         for col in feature_encoders:
@@ -264,13 +271,16 @@ def predict_csv():
 
         # Prediction
         predictions = model.predict(df)
-        probabilities = model.predict_proba(df)
 
         # Main prediction = most frequent prediction in uploaded CSV
         main_prediction = pd.Series(predictions).mode()[0]
         attack_name = target_encoder.inverse_transform([main_prediction])[0]
 
-        avg_confidence = round(np.max(probabilities, axis=1).mean() * 100, 2)
+        if hasattr(model, "predict_proba"):
+            probabilities = model.predict_proba(df)
+            avg_confidence = round(float(np.max(probabilities, axis=1).mean() * 100), 2)
+        else:
+            avg_confidence = 100.0
 
         details, adversarial_alert, autonomous_response = get_attack_details(
             attack_name,
@@ -297,13 +307,17 @@ def predict_csv():
             "status": details["status"],
             "attack_type": attack_name,
             "severity": details["severity"],
-            "confidence": avg_confidence,
+            "confidence": float(avg_confidence),
             "explanation": details["explanation"],
             "recommendation": details["recommendation"],
             "alert": (
-                f"⚠ Threat Detected: {attack_name}"
-                if details["status"] == "Malicious"
-                else "✅ Network traffic appears safe."
+                f"⚠ Multiple Attack Types Detected"
+                if attack_name == "Multiple Attacks"
+                else (
+                    f"⚠ Threat Detected: {attack_name}"
+                    if details["status"] == "Malicious"
+                    else "✅ Network traffic appears safe."
+                )
             ),
             "adversarial_alert": adversarial_alert,
             "autonomous_response": autonomous_response,
@@ -312,7 +326,7 @@ def predict_csv():
                 "processed_rows": processed_rows,
                 "removed_rows": removed_rows
             },
-            "attack_distribution": distribution,
+            "attack_distribution": dict(distribution),
             "detected_attacks": list(malicious_attacks.keys()),
         })
 

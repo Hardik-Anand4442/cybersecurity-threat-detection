@@ -162,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stateEmpty = document.getElementById('stateEmpty');
     const stateScanning = document.getElementById('stateScanning');
     const stateResults = document.getElementById('stateResults');
+    const threatTableBody = document.getElementById("threatTableBody");
     const scanPercent = document.getElementById('scanPercent');
     const scanStatusMsg = document.getElementById('scanStatusMsg');
     const scanProgressBar = document.getElementById('scanProgressBar');
@@ -337,27 +338,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
         await progressPromise;
 
-        let normalized = [];
-        if (Array.isArray(data)) {
-            normalized = data.map(item => normalizeData(item));
-        } else if (data && typeof data === 'object') {
-            if (Array.isArray(data.predictions)) {
-                normalized = data.predictions.map(item => normalizeData(item));
-            } else if (Array.isArray(data.results)) {
-                normalized = data.results.map(item => normalizeData(item));
-            } else {
-                normalized = [normalizeData(data)];
-            }
-        }
+        // STEP 1: normalize single backend response
+        const normalized = normalizeData(data);
 
-        if (normalized.length === 0) {
-            throw new Error('Detections database parsed empty.');
-        }
-        scanResults = normalized;
-        console.log("========== API RESULTS ==========");
-        console.log("Total Records:", scanResults.length);
-        console.table(scanResults);
+        // STEP 2: FORCE ARRAY (IMPORTANT)
+        scanResults = [normalized];
 
+        // DEBUG
+        console.log("API RESPONSE (FIXED):", scanResults[0]);
         renderDashboardResults(scanResults);
         setDashboardState('results');
         generateAutoCyberShieldSummary(scanResults[0]);
@@ -365,34 +353,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function normalizeData(item) {
+    if (!item) return {};
+
     return {
-        status: item.status || item.Status || 'Malicious',
-        attack_type: item.attack_type || item.AttackType || 'Unknown',
-        severity: (item.severity || item.Severity || 'low').toLowerCase(),
-        confidence: parseFloat(item.confidence || item.Confidence || 50),
-        recommendation: item.recommendation || item.Recommendation || 'Investigate suspicious traffic.',
-        alert: item.alert || item.Alert || `Threat Detected: ${item.attack_type || 'Unknown'}`,
+        status: (item.status || 'Malicious').toString(),
+        attack_type: (item.attack_type || 'Unknown').toString(),
+        severity: (item.severity || 'low').toString().toLowerCase(),
+
+        confidence: Number(item.confidence ?? 0),
+
+        recommendation: item.recommendation || 'Investigate suspicious traffic.',
+        alert: item.alert || `Threat Detected: ${item.attack_type || 'Unknown'}`,
+
         explanation: item.explanation || '',
         adversarial_alert: item.adversarial_alert || '',
         autonomous_response: item.autonomous_response || '',
+
         preprocessing_summary: item.preprocessing_summary || null,
         attack_distribution: item.attack_distribution || null
     };
 }
 
-    // 7. Results Dashboard Injections
-    const threatStatus = document.getElementById('threatStatus');
-    const threatAttackType = document.getElementById('threatAttackType');
-    const threatSeverity = document.getElementById('threatSeverity');
-    const threatConfidence = document.getElementById('threatConfidence');
-    const threatRecommendation = document.getElementById('threatRecommendation');
-    const recentAlertMsg = document.getElementById('recentAlertMsg');
-    const recentAlertCard = document.querySelector('.recent-alert-card');
-
-    const threatTableBody = document.getElementById('threatTableBody');
-
     function renderDashboardResults(results) {
+        const threatStatus = document.getElementById("threatStatus");
+        const threatAttackType = document.getElementById("threatAttackType");
+        const threatSeverity = document.getElementById("threatSeverity");
+        const threatConfidence = document.getElementById("threatConfidence");
+        const threatRecommendation = document.getElementById("threatRecommendation");
+        const recentAlertMsg = document.getElementById("recentAlertMsg");
+        const recentAlertCard = document.getElementById("recentAlertCard");
         // Render logs registry
+            if (!Array.isArray(results)) {
+            results = [results];
+}
             console.log("renderDashboardResults()");
             console.table(results);
         if (threatTableBody) {
@@ -401,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
             results.forEach((row, idx) => {
                 const tr = document.createElement('tr');
                 tr.dataset.index = idx;
-                
+                const severity = (row.severity || '').toString().toLowerCase();
                 let sevClass = 'medium';
                 if (row.severity.includes('crit')) sevClass = 'critical';
                 else if (row.severity.includes('high')) sevClass = 'high';
@@ -409,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (row.severity.includes('info')) sevClass = 'info';
 
                 let statusClass = 'neutral';
-                const lowerStatus = row.status.toLowerCase();
+                const lowerStatus = (row.status || '').toString().toLowerCase();
                 if (lowerStatus === 'clean' || lowerStatus === 'cleared') {
                     statusClass = 'clean';
                 } else if (lowerStatus === 'malicious' || lowerStatus === 'threat' || lowerStatus === 'suspicious') {
@@ -420,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td style="font-family: var(--font-mono); color: var(--neon-cyan);">#${(idx + 1).toString().padStart(3, '0')}</td>
                     <td style="font-family: var(--font-mono); font-weight: 500;">${escapeHtml(row.attack_type)}</td>
                     <td><span class="table-pill ${sevClass}">${row.severity.toUpperCase()}</span></td>
-                    <td style="font-family: var(--font-mono); font-weight: 700;">${row.confidence.toFixed(2)}%</td>
+                    <td style="font-family: var(--font-mono); font-weight: 700;">${Number(row.confidence || 0).toFixed(2)}%</td>
                     <td><span class="table-status ${statusClass}">${escapeHtml(row.status)}</span></td>
                     <td class="table-cell-reco" title="${escapeHtml(row.recommendation)}">${escapeHtml(row.recommendation)}</td>
                 `;
@@ -450,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Clicked Row");
         console.log(row);
         if (threatStatus) {
-    threatStatus.textContent = row.status;
+    threatStatus.textContent = `${row.status} (${row.attack_type})`;
     threatStatus.className = "val status-val";
 
     const status = row.status.toLowerCase();
@@ -493,21 +486,29 @@ document.addEventListener('DOMContentLoaded', () => {
 }
         if (threatSeverity) {
             // Capitalize severity word nicely
+            const sev = (row.severity || 'low').toString();
             threatSeverity.textContent = row.severity.charAt(0).toUpperCase() + row.severity.slice(1);
         }
-        if (threatConfidence) threatConfidence.textContent = `${row.confidence.toFixed(2)}%`;
+        if (threatConfidence) threatConfidence.textContent = `${Number(row.confidence || 0).toFixed(2)}%`;
         if (threatRecommendation) threatRecommendation.textContent = row.recommendation;
 
         // Populate Recent Alert card (Screenshot 2 specifications)
         if (recentAlertMsg) {
-            if (row.alert || (row.status.toLowerCase() !== 'clean' && row.status.toLowerCase() !== 'cleared')) {
-                recentAlertMsg.textContent = `Threat Detected: ${row.attack_type}`;
-                if (recentAlertCard) recentAlertCard.classList.add('malicious-alert');
-            } else {
-                recentAlertMsg.textContent = `Safe Log Stream: Clean Broadcast`;
-                if (recentAlertCard) recentAlertCard.classList.remove('malicious-alert');
-            }
+        const status = row.status?.toLowerCase();
+
+        const isThreat =
+            status === "malicious" ||
+            status === "suspicious" ||
+            status === "threat";
+
+        if (isThreat) {
+            recentAlertMsg.textContent = `⚠ Threat Detected: ${row.attack_type}`;
+            recentAlertCard?.classList.add('malicious-alert');
+        } else {
+            recentAlertMsg.textContent = `✔ Safe Log Stream: Clean Broadcast`;
+            recentAlertCard?.classList.remove('malicious-alert');
         }
+    }
     }
 
     // 8. Dynamic HTML5 Canvas Pie/Doughnut Chart drawing
@@ -521,12 +522,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Aggregate counts by attack type
         const counts = {};
-        data.forEach(item => {
+        scanResults.forEach(item => {
             const type = item.attack_type;
             counts[type] = (counts[type] || 0) + 1;
         });
 
-        const total = data.length;
+        const total = scanResults.length || 1;
         const types = Object.keys(counts);
 
         // Theme palette color mappings
@@ -819,15 +820,15 @@ function generateAutoCyberShieldSummary(result) {
         return;
     }
     latestThreatContext = {
-    attack_type: result.attack_type,
-    status: result.status,
-    severity: result.severity,
-    confidence: result.confidence,
-    explanation: result.explanation,
-    recommendation: result.recommendation,
-    adversarial_alert: result.adversarial_alert,
-    autonomous_response: result.autonomous_response,
-    preprocessing_summary: result.preprocessing_summary
+    attack_type: result.attack_type || "Unknown",
+    status: result.status || "Unknown",
+    severity: result.severity || "low",
+    confidence: Number(result.confidence || 0),
+    explanation: result.explanation || "",
+    recommendation: result.recommendation || "",
+    adversarial_alert: result.adversarial_alert || "",
+    autonomous_response: result.autonomous_response || "",
+    preprocessing_summary: result.preprocessing_summary || null
 };
 
 console.log("Updated threat context:", latestThreatContext);
