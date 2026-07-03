@@ -109,7 +109,15 @@
 
                 <!-- STATE C: RESULTS COMPLETED STATE -->
                 <div class="panel-state-view" id="stateResults" style="display: none;">
-                    
+                
+                <div id="threatOverlay" class="threat-overlay hidden"></div>
+                <div id="threatPopup" class="threat-popup hidden">
+                    <div class="popup-content">
+                        ⚠ THREAT DETECTED ⚠
+                        <div id="popupText">Analyzing...</div>
+                    </div>
+                </div>
+
                     <!-- DYNAMIC SUB-GRID: ANALYSIS & ALERTS -->
                     <div class="results-layout-grid">
                         
@@ -147,7 +155,7 @@
                         </div>
 
                         <!-- COLUMN 2: RECENT ALERT CARD -->
-                        <div class="glass-card recent-alert-card">
+                        <div class="glass-card recent-alert-card" id="recentAlertCard">
                             <div class="panel-header alert-card-header">
                                 <span class="alert-icon-warning">⚠️</span>
                                 <h2>Recent Alert</h2>

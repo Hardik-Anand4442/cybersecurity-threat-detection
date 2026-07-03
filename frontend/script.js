@@ -1,7 +1,12 @@
 /**
  * AegisThreat AI - Cybersecurity Threat Detection System Controller
  */
-
+const threatSound = new Audio("Old tv beep - QuickSounds.com.mp3");
+threatSound.volume = 0.6;
+const threatTableBody = document.getElementById("historyBody");
+const stateEmpty = document.getElementById('stateEmpty');
+const stateScanning = document.getElementById('stateScanning');
+const stateResults = document.getElementById('stateResults');
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Live Utility Clock Systems
     const liveTimeEl = document.getElementById('liveTime');
@@ -159,13 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 4. Ingestion Process & State Viewports
-    const stateEmpty = document.getElementById('stateEmpty');
-    const stateScanning = document.getElementById('stateScanning');
-    const stateResults = document.getElementById('stateResults');
-    const threatTableBody = document.getElementById("threatTableBody");
-    const scanPercent = document.getElementById('scanPercent');
-    const scanStatusMsg = document.getElementById('scanStatusMsg');
-    const scanProgressBar = document.getElementById('scanProgressBar');
 
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', async () => {
@@ -373,8 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         attack_distribution: item.attack_distribution || null
     };
 }
-
-    function renderDashboardResults(results) {
         const threatStatus = document.getElementById("threatStatus");
         const threatAttackType = document.getElementById("threatAttackType");
         const threatSeverity = document.getElementById("threatSeverity");
@@ -382,6 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const threatRecommendation = document.getElementById("threatRecommendation");
         const recentAlertMsg = document.getElementById("recentAlertMsg");
         const recentAlertCard = document.getElementById("recentAlertCard");
+    
+        function updateAnalysisUI(row) {
+            loadAnalysisResultCard(row);
+            generateAutoCyberShieldSummary(row);
+        }
+
+        function renderDashboardResults(results) {
         // Render logs registry
             if (!Array.isArray(results)) {
             results = [results];
@@ -389,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("renderDashboardResults()");
             console.table(results);
         if (threatTableBody) {
+            threatTableBody.querySelectorAll('tr').forEach(r => r.classList.remove('active-row'));
             threatTableBody.innerHTML = '';
             console.table(results);
             results.forEach((row, idx) => {
@@ -396,11 +400,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.dataset.index = idx;
                 const severity = (row.severity || '').toString().toLowerCase();
                 let sevClass = 'medium';
-                if (row.severity.includes('crit')) sevClass = 'critical';
-                else if (row.severity.includes('high')) sevClass = 'high';
-                else if (row.severity.includes('low')) sevClass = 'low';
-                else if (row.severity.includes('info')) sevClass = 'info';
+                const sev = (row.severity || '').toLowerCase();
 
+                if (sev.includes('critical')) sevClass = 'critical';
+                else if (sev.includes('high')) sevClass = 'high';
+                else if (sev.includes('low')) sevClass = 'low';
+                else if (sev.includes('info')) sevClass = 'info';
+                else sevClass = 'medium';
                 let statusClass = 'neutral';
                 const lowerStatus = (row.status || '').toString().toLowerCase();
                 if (lowerStatus === 'clean' || lowerStatus === 'cleared') {
@@ -419,9 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
 
                 tr.addEventListener('click', () => {
-                    document.querySelectorAll('#threatTableBody tr').forEach(r => r.classList.remove('active-row'));
-                    tr.classList.add('active-row');
-                    loadAnalysisResultCard(row);
+                    updateAnalysisUI(row);
                 });
 
                 threatTableBody.appendChild(tr);
@@ -493,6 +497,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (threatRecommendation) threatRecommendation.textContent = row.recommendation;
 
         // Populate Recent Alert card (Screenshot 2 specifications)
+        if (recentAlertCard) {
+            recentAlertCard.classList.remove('malicious-alert');
+        }
         if (recentAlertMsg) {
         const status = row.status?.toLowerCase();
 
@@ -503,18 +510,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isThreat) {
             recentAlertMsg.textContent = `⚠ Threat Detected: ${row.attack_type}`;
-            recentAlertCard?.classList.add('malicious-alert');
+            recentAlertCard.classList.add('malicious-alert');
         } else {
             recentAlertMsg.textContent = `✔ Safe Log Stream: Clean Broadcast`;
-            recentAlertCard?.classList.remove('malicious-alert');
         }
     }
+    triggerThreatOverlay(row);
+    triggerThreatPopup(row);
     }
 
     // 8. Dynamic HTML5 Canvas Pie/Doughnut Chart drawing
     const canvas = document.getElementById('threatDistributionChart');
     const legendEl = document.getElementById('chartLegend');
+    
+    function triggerThreatOverlay(row) {
+    const overlay = document.getElementById("threatOverlay");
+    if (!overlay) return;
 
+    const status = (row.status || "").toLowerCase();
+
+    if (status === "malicious" || status === "suspicious") {
+
+        overlay.classList.add("active");
+
+        // auto stop after 5 seconds
+        setTimeout(() => {
+            overlay.classList.remove("active");
+        }, 5000);
+    }
+}
+    function triggerThreatPopup(row) {
+        const popup = document.getElementById("threatPopup");
+        const popupText = document.getElementById("popupText");
+
+        if (!popup) return;
+
+        const status = (row.status || "").toLowerCase();
+
+        if (status === "malicious" || status === "suspicious") {
+
+            popupText.textContent = `${row.attack_type} detected (${row.severity})`;
+
+            popup.classList.remove("hidden");
+            popup.classList.add("blink");
+
+            // 🔊 PLAY SOUND
+            try {
+                threatSound.currentTime = 0;
+                threatSound.play();
+            } catch (e) {
+                console.log("Audio blocked until user interaction");
+            }
+
+            // auto hide
+            setTimeout(() => {
+                popup.classList.add("hidden");
+                popup.classList.remove("blink");
+            }, 4000);
+        }
+    }
     function renderDistributionChart(data) {
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
