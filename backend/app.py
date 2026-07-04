@@ -426,50 +426,48 @@ def ask_cybershield():
         # ==========================
         if mode == "prompt":
 
-            if ("this" in question or "detected" in question or "current" in question) and current_attack:
+            # Detect attack mentioned in question
+            for key in attack_info:
+                if key in question:
+                    current_attack = key
 
-                info = attack_info.get(current_attack)
-
-                if not info:
-                    return jsonify({
-                        "mode": mode,
-                        "answer": "The current detected attack is not available in my knowledge base yet."
-                    })
-
-                if "prevent" in question or "avoid" in question or "stop" in question:
-                    return jsonify({
-                        "mode": mode,
-                        "answer": f"For the current detected threat ({info['name']}), prevention includes: {info['prevention']}"
-                    })
-
-                if "danger" in question or "risk" in question or "harm" in question:
-                    return jsonify({
-                        "mode": mode,
-                        "answer": f"The current detected threat ({info['name']}) is dangerous because: {info['danger']}"
-                    })
-
+            # If no attack available
+            if not current_attack:
                 return jsonify({
                     "mode": mode,
-                    "answer": (
-                        f"The current detected threat is {info['name']}\n\n"
-                        f"What it is: {info['meaning']}\n\n"
-                        f"Why it is dangerous: {info['danger']}\n\n"
-                        f"Prevention: {info['prevention']}"
-                    )
+                    "answer": "Please analyze a CSV first or specify an attack name."
                 })
 
-            for key, info in attack_info.items():
-                if key in question:
-                    return jsonify({
-                        "mode": mode,
-                        "answer": (
-                            f"{info['name']}\n\n"
-                            f"What it is: {info['meaning']}\n\n"
-                            f"Why it is dangerous: {info['danger']}\n\n"
-                            f"Prevention: {info['prevention']}"
-                        )
-                    })
+            info = attack_info.get(current_attack)
 
+            if not info:
+                return jsonify({
+                    "mode": mode,
+                    "answer": "Information about this attack is unavailable."
+                })
+
+            q = question.lower()
+
+            # -------------------------
+            # WHAT IS IT
+            # -------------------------
+            response = []
+
+            if any(x in q for x in ["what is", "meaning", "define", "explain"]):
+                response.append(f"What it is:\n{info['meaning']}")
+
+            if any(x in q for x in ["prevent", "avoid", "protect", "stop"]):
+                response.append(f"How to prevent it:\n{info['prevention']}")
+
+            if any(x in q for x in ["danger", "risk", "harm"]):
+                response.append(f"Why it is dangerous:\n{info['danger']}")
+
+            if response:
+                return jsonify({
+                    "mode": mode,
+                    "answer": "\n\n".join(response)
+                })
+            
             if ("project" in question or
                 "system" in question or
                 "ids" in question or

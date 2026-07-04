@@ -304,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         scanResults = simulatedList;
         renderDashboardResults(scanResults);
-        generateAutoCyberShieldSummary(scanResults[0]);
         setDashboardState('results');
         showTerminalLog(`Generated ${scanResults.length} simulated detections.`, 'success');
     }
@@ -346,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("API RESPONSE (FIXED):", scanResults[0]);
         renderDashboardResults(scanResults);
         setDashboardState('results');
-        generateAutoCyberShieldSummary(scanResults[0]);
         showTerminalLog(`Ingested ${scanResults.length} live records.`, 'success');
     }
 
@@ -515,7 +513,6 @@ document.addEventListener('DOMContentLoaded', () => {
             recentAlertMsg.textContent = `✔ Safe Log Stream: Clean Broadcast`;
         }
     }
-    triggerThreatOverlay(row);
     triggerThreatPopup(row);
     }
 
@@ -523,22 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('threatDistributionChart');
     const legendEl = document.getElementById('chartLegend');
     
-    function triggerThreatOverlay(row) {
-    const overlay = document.getElementById("threatOverlay");
-    if (!overlay) return;
-
-    const status = (row.status || "").toLowerCase();
-
-    if (status === "malicious" || status === "suspicious") {
-
-        overlay.classList.add("active");
-
-        // auto stop after 5 seconds
-        setTimeout(() => {
-            overlay.classList.remove("active");
-        }, 5000);
-    }
-}
     function triggerThreatPopup(row) {
         const popup = document.getElementById("threatPopup");
         const popupText = document.getElementById("popupText");
