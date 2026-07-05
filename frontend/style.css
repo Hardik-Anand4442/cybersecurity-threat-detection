@@ -1809,3 +1809,13 @@ input:checked + .slider:before {
         box-shadow: inset 0 0 10px red, 0 0 10px red;
     }
 }
+
+#chatInput:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+#chatSendBtn:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.5;
+    pointer-events: none;
+}

@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', async () => {
             if (!activeFile) return;
-
+            resetChat();
             setDashboardState('scanning');
             try {
                 if (mockModeSwitch && mockModeSwitch.checked) {
@@ -379,7 +379,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
         function updateAnalysisUI(row) {
             loadAnalysisResultCard(row);
+            if (selectedMode === "auto") {
             generateAutoCyberShieldSummary(row);
+        }
         }
 
         function renderDashboardResults(results) {
@@ -719,10 +721,34 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===========================
 // AI-CYBER SHIELD CHATBOT
 // ===========================
+function resetChat() {
+    chatOutput.innerHTML = `
+        <div class="bot-message">
+            Hello, I am AI-CYBER SHIELD. Ask me about the detected threat, prevention methods, severity, recommendations, or IDS functionality.
+        </div>
+    `;
+}
+
+function updateChatMode() {
+
+    const isPrompt = selectedMode === "prompt";
+
+    chatInput.disabled = !isPrompt;
+    chatSendBtn.disabled = !isPrompt;
+
+    chatInput.placeholder = isPrompt
+        ? "Ask AI-CYBER SHIELD..."
+        : "Questions are disabled in Auto Mode";
+
+    chatSendBtn.style.pointerEvents = isPrompt ? "auto" : "none";
+    chatSendBtn.style.cursor = isPrompt ? "pointer" : "not-allowed";
+    chatSendBtn.style.opacity = isPrompt ? "1" : "0.5";
+}
 const chatInput = document.getElementById("chatInput");
 const chatSendBtn = document.getElementById("chatSendBtn");
 const chatOutput = document.getElementById("chatOutput");
 let selectedMode = "auto";
+updateChatMode();
 
 const modeButtons =
 document.querySelectorAll(".mode-btn");
@@ -730,43 +756,51 @@ document.querySelectorAll(".mode-btn");
 modeButtons.forEach(btn => {
 
     btn.addEventListener("click", () => {
-        modeButtons.forEach(b =>
-    b.classList.remove("active")
-);
 
-btn.classList.add("active");
+        modeButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
 
         selectedMode = btn.dataset.mode;
+        updateChatMode();
 
-        const modeTitle =
-        document.getElementById("modeTitle");
+        const modeTitle = document.getElementById("modeTitle");
+        const modeDescription = document.getElementById("modeDescription");
 
-        const modeDescription =
-        document.getElementById("modeDescription");
+        if (selectedMode === "auto") {
 
-        if(selectedMode === "auto"){
-            modeTitle.textContent =
-            "🤖 Automated Response Mode";
-
+            modeTitle.textContent = "🤖 Automated Response Mode";
             modeDescription.textContent =
-            "AI automatically generates reports and recommendations.";
+                "AI automatically generates reports and recommendations.";
+
+            // Disable chat
+            chatInput.value = "";
+            chatInput.disabled = true;
+            chatInput.placeholder = "Questions are disabled in Auto Mode";
+            chatSendBtn.disabled = true;
+
         }
 
-        if(selectedMode === "prompt"){
-            modeTitle.textContent =
-            "💬 Prompt Mode";
+        if (selectedMode === "prompt") {
 
+            modeTitle.textContent = "💬 Prompt Mode";
             modeDescription.textContent =
-            "User provides prompts to receive information and actions.";
+                "User provides prompts to receive information and actions.";
+
+            // Enable chat
+            chatInput.disabled = false;
+            chatInput.placeholder = "Ask AI-CYBER SHIELD...";
+            chatSendBtn.disabled = false;
+            //reset chat output
+            resetChat();
         }
 
     });
-
 });
 async function sendCyberShieldQuestion() {
-
+    if (selectedMode === "auto") {
+        return;
+    }
     const question = chatInput.value.trim();
-
     if (!question) return;
 
     const userMessage = document.createElement("div");
